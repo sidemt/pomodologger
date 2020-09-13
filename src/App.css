@@ -1,39 +1,80 @@
-.App {
-  text-align: center;
+.container {
+  margin: auto;
+  padding: 2rem .5rem;
+  max-width: 42rem;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.lang-selection {
+  text-align: right;
+  font-size: 0.7rem;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-float infinite 3s ease-in-out;
-  }
+.group {
+  background-color: rgba(255, 255, 250, 0.2);
+  border: 1px solid var(--main-white);
+  border-radius: 5px;
+  width: auto;
+  margin: 1rem 0.5rem;
 }
 
-.App-header {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+.logs {
+  padding-top: 1rem;
 }
 
-.App-link {
-  color: rgb(112, 76, 182);
+.logs ol {
+  padding-left: 1rem;
+  padding-right: 1rem;
+  text-align: left;
 }
 
-@keyframes App-logo-float {
-  0% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(10px)
-  }
-  100% {
-    transform: translateY(0px)
-  }
+.descriptions {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.user-input-area {
+  background-color: rgba(255, 255, 250, 0.2);
+  padding: .5rem .5rem .5rem .2rem;
+  margin-bottom: .8rem;
+}
+
+.form-area {
+  margin: 1rem 1rem;
+}
+
+.current-value {
+  padding-bottom: 1rem;
+}
+
+.descriptions .btn {
+  margin: 0 .25rem;
+}
+.section {
+  margin: 1.5rem;
+}
+
+.number-list {
+  list-style-position: inside;
+  margin: 1rem;
+  padding-inline-start: 0;
+}
+
+.btn {
+  font-family: "Comfortaa", cursive;
+}
+
+footer {
+  margin: 1rem 0;
+  padding-top: 1rem;
+}
+
+footer ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+footer li {
+  display: inline;
+  padding-left: .5rem;
+  padding-right: .5rem;
 }
