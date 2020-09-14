@@ -89,17 +89,6 @@ function App() {
         </footer>
 
       </div>
-
-      {/* audio elements */}
-      <audio id="sound-session" preload="auto">
-        <source src="assets/small-bell01.mp3" />
-      </audio>
-      <audio id="sound-break" preload="auto">
-        <source src="assets/one35.mp3" />
-      </audio>
-      <audio id="sound-long-break" preload="auto">
-        <source src="assets/one30.mp3" />
-      </audio>
     </>
   );
 }

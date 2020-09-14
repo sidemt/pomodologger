@@ -1,16 +1,16 @@
 // Array of API discovery doc URLs for APIs used by the quickstart
-var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"];
+const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'];
 
 // Authorization scopes required by the API; multiple scopes can be
 // included, separated by spaces.
-var SCOPES = "https://www.googleapis.com/auth/calendar";
+const SCOPES = 'https://www.googleapis.com/auth/calendar';
 
-var authorizeDesc = document.getElementById('authorize_desc');
-var authorizeButton = document.getElementById('authorize_button');
-var signoutButton = document.getElementById('signout_button');
-var createButton = document.getElementById('create_button');
-var signedInOnly = document.getElementById('signed-in-only');
-var noLogs = document.getElementById('no-logs');
+const authorizeDesc = document.getElementById('authorize_desc');
+const authorizeButton = document.getElementById('authorize_button');
+const signoutButton = document.getElementById('signout_button');
+const createButton = document.getElementById('create_button');
+const signedInOnly = document.getElementById('signed-in-only');
+const noLogs = document.getElementById('no-logs');
 
 /**
  *  On load, called to load the auth2 library and API client library.
@@ -28,8 +28,8 @@ function initClient() {
     apiKey: API_KEY,
     clientId: CLIENT_ID,
     discoveryDocs: DISCOVERY_DOCS,
-    scope: SCOPES
-  }).then(function () {
+    scope: SCOPES,
+  }).then(() => {
     // Listen for sign-in state changes.
     gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
 
@@ -52,7 +52,7 @@ function updateSigninStatus(isSignedIn) {
     signoutButton.style.display = 'inline';
     signedInOnly.style.display = 'block';
     // Get calendar list
-    clearOption()
+    clearOption();
     getCalendarList();
   } else {
     authorizeDesc.style.display = 'block';
@@ -77,10 +77,10 @@ function handleSignoutClick(event) {
 }
 
 function handleCreateClick(event) {
-  let duration = parseInt(document.getElementById('session-length').innerText, 10);
-  let name = document.getElementById('current-event-name').innerText;
-  let desc = document.getElementById('current-event-desc').innerText;
-  let calendarId = document.getElementById('calendar-select').value;
+  const duration = parseInt(document.getElementById('session-length').innerText, 10);
+  const name = document.getElementById('current-event-name').innerText;
+  const desc = document.getElementById('current-event-desc').innerText;
+  const calendarId = document.getElementById('calendar-select').value;
   createEvent(duration, name, desc, calendarId);
 }
 
@@ -97,9 +97,9 @@ function appendOl(message) {
   }
 
   // Append new item to the ordered list
-  var ol = document.getElementById('event-list');
-  var newItem = "<li>" + message + "</li>";
-  ol.insertAdjacentHTML("beforeEnd", newItem);
+  const ol = document.getElementById('event-list');
+  const newItem = `<li>${message}</li>`;
+  ol.insertAdjacentHTML('beforeEnd', newItem);
 }
 
 /**
@@ -110,22 +110,22 @@ function appendOl(message) {
  * @param {boolean} primary If the calendar is primary
  */
 function appendOption(value, summary, primary) {
-  var select = document.getElementById('calendar-select');
+  const select = document.getElementById('calendar-select');
   if (primary) {
     // Show the primary calendar as pre-selected
-    var newItem = "<option value=\"" + value + "\" selected>" + summary + "</option>";
+    var newItem = `<option value="${value}" selected>${summary}</option>`;
   } else {
-    var newItem = "<option value=\"" + value + "\">" + summary + "</option>";
+    var newItem = `<option value="${value}">${summary}</option>`;
   }
-  select.insertAdjacentHTML("beforeEnd", newItem);
+  select.insertAdjacentHTML('beforeEnd', newItem);
 }
 
 /**
  * Clear option elements in the select element
  */
 function clearOption() {
-  var select = document.getElementById('calendar-select');
-  select.innerHTML = "";
+  const select = document.getElementById('calendar-select');
+  select.innerHTML = '';
 }
 
 /**
@@ -135,24 +135,24 @@ function clearOption() {
  */
 function listUpcomingEvents() {
   gapi.client.calendar.events.list({
-    'calendarId': 'primary',
-    'timeMin': (new Date()).toISOString(),
-    'showDeleted': false,
-    'singleEvents': true,
-    'maxResults': 10,
-    'orderBy': 'startTime'
-  }).then(function(response) {
-    var events = response.result.items;
+    calendarId: 'primary',
+    timeMin: (new Date()).toISOString(),
+    showDeleted: false,
+    singleEvents: true,
+    maxResults: 10,
+    orderBy: 'startTime',
+  }).then((response) => {
+    const events = response.result.items;
     appendPre('Upcoming events:');
 
     if (events.length > 0) {
       for (i = 0; i < events.length; i++) {
-        var event = events[i];
-        var when = event.start.dateTime;
+        const event = events[i];
+        let when = event.start.dateTime;
         if (!when) {
           when = event.start.date;
         }
-        appendPre(event.summary + ' (' + when + ')')
+        appendPre(`${event.summary} (${when})`);
       }
     } else {
       appendPre('No upcoming events found.');
@@ -164,66 +164,65 @@ function listUpcomingEvents() {
  * Convert JavaScript Date object into RFC 3339 format
  */
 function rfc3339(d) {
-  
   function pad(n) {
-      return n < 10 ? "0" + n : n;
+    return n < 10 ? `0${n}` : n;
   }
 
   function timezoneOffset(offset) {
-      var sign;
-      if (offset === 0) {
-          return "Z";
-      }
-      sign = (offset > 0) ? "-" : "+";
-      offset = Math.abs(offset);
-      return sign + pad(Math.floor(offset / 60)) + ":" + pad(offset % 60);
+    let sign;
+    if (offset === 0) {
+      return 'Z';
+    }
+    sign = (offset > 0) ? '-' : '+';
+    offset = Math.abs(offset);
+    return `${sign + pad(Math.floor(offset / 60))}:${pad(offset % 60)}`;
   }
 
-  return d.getFullYear() + "-" +
-      pad(d.getMonth() + 1) + "-" +
-      pad(d.getDate()) + "T" +
-      pad(d.getHours()) + ":" +
-      pad(d.getMinutes()) + ":" +
-      pad(d.getSeconds()) + 
-      timezoneOffset(d.getTimezoneOffset());
+  return `${d.getFullYear()}-${
+    pad(d.getMonth() + 1)}-${
+    pad(d.getDate())}T${
+    pad(d.getHours())}:${
+    pad(d.getMinutes())}:${
+    pad(d.getSeconds())
+  }${timezoneOffset(d.getTimezoneOffset())}`;
 }
 
 /**
  * Add and event to the calendar when create button is clicked
  */
-function createEvent(duration, eventName = "Pomodoro", eventDetail = "", calendarId = "primary") {
-  if (gapi.auth2.getAuthInstance().isSignedIn.get()){
-    var startTime = new Date();
-    var endTime = new Date();
+function createEvent(duration, eventName = 'Pomodoro', eventDetail = '', calendarId = 'primary') {
+  if (gapi.auth2.getAuthInstance().isSignedIn.get()) {
+    let startTime = new Date();
+    let endTime = new Date();
     startTime.setMinutes(startTime.getMinutes() - duration);
     // Convert date to RFC3339 format
     startTime = rfc3339(startTime);
     endTime = rfc3339(endTime);
-  
-    var event = {
-      'summary': eventName,
-      'start': {
-        'dateTime': startTime
+
+    const event = {
+      summary: eventName,
+      start: {
+        dateTime: startTime,
       },
-      'end': {
-        'dateTime': endTime
+      end: {
+        dateTime: endTime,
       },
-      'description': eventDetail
+      description: eventDetail,
     };
-  
-    var request = gapi.client.calendar.events.insert({
-      'calendarId': calendarId,
-      'resource': event
+
+    const request = gapi.client.calendar.events.insert({
+      calendarId,
+      resource: event,
     });
-  
-    request.execute(function(event) {
+
+    request.execute((event) => {
       console.log(event);
-      var newText = 'Pomodoro Done: ' + event.summary + ' <a href=\"' + event.htmlLink + '\" target=\"_blank\">[View in Calendar]</a>';
+      const newText = `Pomodoro Done: ${event.summary} <a href=\"${event.htmlLink}\" target=\"_blank\">[View in Calendar]</a>`;
       appendOl(newText);
-    });  
+    });
   } else {
-    console.log("Not signed in");
-    var newText = 'Pomodoro Done: Not Signed In';
+    console.log('Not signed in');
+    const newText = 'Pomodoro Done: Not Signed In';
     appendOl(newText);
   }
 }
@@ -232,20 +231,18 @@ function createEvent(duration, eventName = "Pomodoro", eventDetail = "", calenda
  * Get the list of calendars
  */
 function getCalendarList() {
-  if (gapi.auth2.getAuthInstance().isSignedIn.get()){
-
-    var request = gapi.client.calendar.calendarList.list({
-      'minAccessRole': 'writer'
+  if (gapi.auth2.getAuthInstance().isSignedIn.get()) {
+    const request = gapi.client.calendar.calendarList.list({
+      minAccessRole: 'writer',
     });
-  
-    request.execute(function(calendarList) {
 
-      calendarList.items.forEach(function(item) {
+    request.execute((calendarList) => {
+      calendarList.items.forEach((item) => {
         appendOption(item.id, item.summary, item.primary);
       });
-    });  
+    });
   } else {
-    console.log("Could not get calendar list");
+    console.log('Could not get calendar list');
     appendOption('primary', 'Primary', true);
   }
 }
