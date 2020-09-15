@@ -1,3 +1,5 @@
+import * as Keys from '../../keys';
+
 // Array of API discovery doc URLs for APIs used by the quickstart
 const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'];
 
@@ -5,12 +7,7 @@ const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/calendar/v
 // included, separated by spaces.
 const SCOPES = 'https://www.googleapis.com/auth/calendar';
 
-const authorizeDesc = document.getElementById('authorize_desc');
-const authorizeButton = document.getElementById('authorize_button');
-const signoutButton = document.getElementById('signout_button');
-const createButton = document.getElementById('create_button');
-const signedInOnly = document.getElementById('signed-in-only');
-const noLogs = document.getElementById('no-logs');
+/* global gapi */
 
 /**
  *  On load, called to load the auth2 library and API client library.
@@ -24,9 +21,13 @@ function handleClientLoad() {
  *  listeners.
  */
 function initClient() {
+  const authorizeButton = document.getElementById('authorize_button');
+  const signoutButton = document.getElementById('signout_button');
+  const createButton = document.getElementById('create_button');
+
   gapi.client.init({
-    apiKey: API_KEY,
-    clientId: CLIENT_ID,
+    apiKey: Keys.API_KEY,
+    clientId: Keys.CLIENT_ID,
     discoveryDocs: DISCOVERY_DOCS,
     scope: SCOPES,
   }).then(() => {
@@ -46,6 +47,11 @@ function initClient() {
  *  appropriately. After a sign-in, the API is called.
  */
 function updateSigninStatus(isSignedIn) {
+  const authorizeDesc = document.getElementById('authorize_desc');
+  const authorizeButton = document.getElementById('authorize_button');
+  const signoutButton = document.getElementById('signout_button');
+  const signedInOnly = document.getElementById('signed-in-only');
+
   if (isSignedIn) {
     authorizeDesc.style.display = 'none';
     authorizeButton.style.display = 'none';
@@ -91,6 +97,8 @@ function handleCreateClick(event) {
  * @param {string} message Text to be placed in li element.
  */
 function appendOl(message) {
+  const noLogs = document.getElementById('no-logs');
+
   // Hide "No logs" message
   if (noLogs.style.display != 'none') {
     noLogs.style.display = 'none';
@@ -133,32 +141,32 @@ function clearOption() {
  * the authorized user's calendar. If no events are found an
  * appropriate message is printed.
  */
-function listUpcomingEvents() {
-  gapi.client.calendar.events.list({
-    calendarId: 'primary',
-    timeMin: (new Date()).toISOString(),
-    showDeleted: false,
-    singleEvents: true,
-    maxResults: 10,
-    orderBy: 'startTime',
-  }).then((response) => {
-    const events = response.result.items;
-    appendPre('Upcoming events:');
+// function listUpcomingEvents() {
+//   gapi.client.calendar.events.list({
+//     calendarId: 'primary',
+//     timeMin: (new Date()).toISOString(),
+//     showDeleted: false,
+//     singleEvents: true,
+//     maxResults: 10,
+//     orderBy: 'startTime',
+//   }).then((response) => {
+//     const events = response.result.items;
+//     appendPre('Upcoming events:');
 
-    if (events.length > 0) {
-      for (i = 0; i < events.length; i++) {
-        const event = events[i];
-        let when = event.start.dateTime;
-        if (!when) {
-          when = event.start.date;
-        }
-        appendPre(`${event.summary} (${when})`);
-      }
-    } else {
-      appendPre('No upcoming events found.');
-    }
-  });
-}
+//     if (events.length > 0) {
+//       for (i = 0; i < events.length; i++) {
+//         const event = events[i];
+//         let when = event.start.dateTime;
+//         if (!when) {
+//           when = event.start.date;
+//         }
+//         appendPre(`${event.summary} (${when})`);
+//       }
+//     } else {
+//       appendPre('No upcoming events found.');
+//     }
+//   });
+// }
 
 /**
  * Convert JavaScript Date object into RFC 3339 format
@@ -245,4 +253,8 @@ function getCalendarList() {
     console.log('Could not get calendar list');
     appendOption('primary', 'Primary', true);
   }
+}
+
+export {
+  handleClientLoad,
 }
