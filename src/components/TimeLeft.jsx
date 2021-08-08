@@ -9,6 +9,17 @@ class TimeLeft extends Component {
 
     this.mmss = this.mmss.bind(this);
     this.calcTimeLeft = this.calcTimeLeft.bind(this);
+    this.displayTimeInTitle = this.displayTimeInTitle.bind(this);
+  }
+
+  componentDidMount() {
+    const { timeLeft, timerLabel } = this.props;
+    this.displayTimeInTitle(timeLeft, timerLabel);
+  }
+
+  componentDidUpdate() {
+    const { timeLeft, timerLabel } = this.props;
+    this.displayTimeInTitle(timeLeft, timerLabel);
   }
 
   /**
@@ -31,6 +42,15 @@ class TimeLeft extends Component {
     const seconds = Math.floor(timeLeft % (60));
 
     return this.mmss(minutes, seconds);
+  }
+
+  /**
+   * Update page title with given time and label
+   * @param {Number} timeLeft
+   * @param {String} timerLabel
+   */
+  displayTimeInTitle(timeLeft, timerLabel) {
+    document.title = `${this.calcTimeLeft(timeLeft)} [${timerLabel}] - Pom-Cal`;
   }
 
 

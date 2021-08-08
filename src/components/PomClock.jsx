@@ -343,13 +343,12 @@ class PomodoroClock extends Component {
    * Render the pomodoro timer
    */
   render() {
-    // document.title = `${calcTimeLeft(this.state.timeLeft)} [${this.state.timerLabel}] - Pom-Cal`;
     return (
       <div id="pomodoro-clock-inside">
         <div className="btn-set timer">
           <div>
             <div id="timer-label" className="label">{this.state.timerLabel}</div>
-            <TimeLeft timeLeft={this.state.timeLeft} />
+            <TimeLeft timeLeft={this.state.timeLeft} timerLabel={this.state.timerLabel} />
             <div>
               Completed Sessions:
               {' '}
