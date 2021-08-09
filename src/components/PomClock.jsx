@@ -8,6 +8,8 @@ import sessionSound from '../assets/audio/small-bell01.mp3';
 import breakSound from '../assets/audio/one35.mp3';
 import longBreakSound from '../assets/audio/one30.mp3';
 
+import * as Calendar from '../features/calendar/Calendar';
+
 import Push from 'push.js'
 
 import { parseBool } from '../features/helper/helper';
@@ -295,7 +297,7 @@ class PomodoroClock extends Component {
       const calendarId = document.getElementById('calendar-select').value;
 
       // Log event
-      createEvent(this.state.sessionLength, name, desc, calendarId);
+      Calendar.createEvent(this.state.sessionLength, name, desc, calendarId);
 
       // Check which break to start
       if (this.state.currentCount < this.state.sessionCycle) {
