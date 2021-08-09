@@ -294,8 +294,8 @@ class PomodoroClock extends Component {
       const desc = document.getElementById('current-event-desc').innerText;
       const calendarId = document.getElementById('calendar-select').value;
 
-      // TODO: Log event
-      // createEvent(this.state.sessionLength, name, desc, calendarId);
+      // Log event
+      createEvent(this.state.sessionLength, name, desc, calendarId);
 
       // Check which break to start
       if (this.state.currentCount < this.state.sessionCycle) {
