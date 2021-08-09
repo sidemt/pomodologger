@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 
-import SoundSwitch from './SoundSwitch';
 import TimeLeft from './TimeLeft';
 
 import './PomClock.css';
@@ -8,6 +7,10 @@ import './PomClock.css';
 import sessionSound from '../assets/audio/small-bell01.mp3';
 import breakSound from '../assets/audio/one35.mp3';
 import longBreakSound from '../assets/audio/one30.mp3';
+
+import Push from 'push.js'
+
+import { parseBool } from '../features/helper/helper';
 
 // Variable to store the intervalID of setInterval
 // Used to stop the setInterval function by clearInterval
@@ -17,6 +20,21 @@ let intervalId;
 const BREAK = 'Break';
 const SESSION = 'Session';
 const LONG_BREAK = 'Long Break';
+
+const MINUTE = 60;
+
+const defaultValues = {
+  timerLabel: SESSION,
+  timeLeft: 1500,
+  breakLength: 5,
+  sessionLength: 25,
+  currentCount: 1,
+  sessionCycle: 4,
+  longBreakLength: 15,
+  isRunning: false,
+  soundSetting: true,
+  notifySetting: false
+}
 
 class PomodoroClock extends Component {
   constructor(props) {
@@ -30,9 +48,11 @@ class PomodoroClock extends Component {
       sessionCycle: 4,
       longBreakLength: 15,
       isRunning: false,
-      soundSetting: true
+      soundSetting: true,
+      notifySetting: false
     };
     this.playSound = this.playSound.bind(this);
+    this.notify = this.notify.bind(this);
     this.reset = this.reset.bind(this);
     this.decrementBreak = this.decrementBreak.bind(this);
     this.incrementBreak = this.incrementBreak.bind(this);
@@ -46,7 +66,9 @@ class PomodoroClock extends Component {
     this.toggleTimer = this.toggleTimer.bind(this);
     this.startStop = this.startStop.bind(this);
     this.updateTimeLeft = this.updateTimeLeft.bind(this);
-    this.toggleSoundSetting = this.toggleSoundSetting.bind(this);
+    this.saveSettings = this.saveSettings.bind(this);
+    this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
+    this.handleNotifySettingChange = this.handleNotifySettingChange.bind(this);
   }
 
   sessionSound = new Audio(sessionSound);
@@ -54,9 +76,19 @@ class PomodoroClock extends Component {
   longBreakSound = new Audio(longBreakSound);
 
   componentDidMount() {
-    console.log("componetDidMount");
-    // Connection to audio elements
+    console.log("componentDidMount");
+    // Get saved settings from localStorage
+    this.setState({
+      timeLeft: parseInt(localStorage.sessionLength, 10) * MINUTE || defaultValues.timeLeft,
+      breakLength: parseInt(localStorage.breakLength, 10) || defaultValues.breakLength,
+      sessionLength: parseInt(localStorage.sessionLength, 10) || defaultValues.sessionLength,
+      sessionCycle: parseInt(localStorage.sessionCycle, 10) || defaultValues.sessionCycle,
+      longBreakLength: parseInt(localStorage.longBreakLength, 10) || defaultValues.longBreakLength,
+      soundSetting: parseBool(localStorage.soundSetting, defaultValues.soundSetting),
+      notifySetting: parseBool(localStorage.notifySetting, defaultValues.notifySetting)
+    });
 
+    // Connection to audio elements
     // Audio elements
     this.SOUND_SESSION = this.sessionSound;
     this.SOUND_BREAK = this.breakSound;
@@ -89,6 +121,35 @@ class PomodoroClock extends Component {
     }
   }
 
+    /**
+     * Checks the notification setting and send a notification
+     * @param {Boolean} notifySetting
+     * @param {String} message
+     * @param {String} body
+     */
+    notify(notifySetting, message, body = '') {
+      console.log("notify");
+      // Send a notification if notify settings is ON (true)
+      if (notifySetting) {
+        Push.create(message, {
+          body: body,
+          timeout: 50000,
+          onClick: function () {
+              this.close();
+          }
+        })
+        .then(() => {
+          console.log('notify success');
+        })
+        .catch(err => {
+          console.error('notify error:', err);
+        })
+        .finally(() => {
+          console.log('notify finally');
+        })
+      }
+    }
+
   /**
    * Resets the timer to default state
    */
@@ -96,12 +157,12 @@ class PomodoroClock extends Component {
     // Reset timer
     this.setState({
       timerLabel: SESSION,
-      timeLeft: 1500,
-      breakLength: 5,
-      sessionLength: 25,
+      timeLeft: parseInt(localStorage.sessionLength, 10) * MINUTE || defaultValues.timeLeft,
+      breakLength: parseInt(localStorage.breakLength, 10) || defaultValues.breakLength,
+      sessionLength: parseInt(localStorage.sessionLength, 10) || defaultValues.sessionLength,
       currentCount: 1,
-      sessionCycle: 4,
-      longBreakLength: 15,
+      sessionCycle: parseInt(localStorage.sessionCycle, 10) || defaultValues.sessionCycle,
+      longBreakLength: parseInt(localStorage.longBreakLength, 10) || defaultValues.longBreakLength,
       isRunning: false,
     });
     clearInterval(intervalId);
@@ -241,12 +302,16 @@ class PomodoroClock extends Component {
         // Start a short break
         this.setState({
           timerLabel: BREAK,
-          timeLeft: this.state.breakLength * 60,
+          timeLeft: this.state.breakLength * MINUTE,
         });
         // Change the background color
         document.getElementById('body').style.backgroundColor = 'var(--main-green)';
         // Change the sound to be played
         this.beep = this.SOUND_BREAK;
+        // Send a short break start (= session end) notification
+        this.notify(this.state.notifySetting,
+          `Session Complete! ${this.state.currentCount}/${this.state.sessionCycle}`,
+          'Take a short break.');
         // Increase sessions count
         this.setState((state) => ({
           currentCount: state.currentCount + 1,
@@ -255,30 +320,36 @@ class PomodoroClock extends Component {
         // Start a long break
         this.setState({
           timerLabel: LONG_BREAK,
-          timeLeft: this.state.longBreakLength * 60,
+          timeLeft: this.state.longBreakLength * MINUTE,
         });
         // Change the background color
         document.getElementById('body').style.backgroundColor = 'var(--main-blue)';
         // Change the sound to be played
         this.beep = this.SOUND_LONG_BREAK;
+        // Send a long break start (= session end) notification
+        this.notify(this.state.notifySetting,
+          `${this.state.sessionCycle} Sessions Complete! Good Work!`,
+          'Take a long break.');
         // Reset sessions count
         this.setState((state) => ({
           currentCount: 1,
         }));
       }
-      // Play the start sound
+      // Play a break start (= session end) sound
       this.playSound(this.state.soundSetting);
     } else {
       // When a break or long break ends
       // Start a session
       this.setState({
         timerLabel: SESSION,
-        timeLeft: this.state.sessionLength * 60,
+        timeLeft: this.state.sessionLength * MINUTE,
       });
       // Change the background color
       document.getElementById('body').style.backgroundColor = 'var(--main-red)';
       // Change the sound to be played
       this.beep = this.SOUND_SESSION;
+      // Send a session start (= break end) notification
+      this.notify(this.state.notifySetting, `Start working! ${this.state.currentCount}/${this.state.sessionCycle}`);
       // Play the sound
       this.playSound(this.state.soundSetting);
     }
@@ -315,15 +386,15 @@ class PomodoroClock extends Component {
   updateTimeLeft(label) {
     if (label == SESSION && this.state.timerLabel == SESSION) {
       this.setState((state) => ({
-        timeLeft: state.sessionLength * 60,
+        timeLeft: state.sessionLength * MINUTE,
       }));
     } else if (label == BREAK && this.state.timerLabel == BREAK) {
       this.setState((state) => ({
-        timeLeft: state.breakLength * 60,
+        timeLeft: state.breakLength * MINUTE,
       }));
     } else if (label == LONG_BREAK && this.state.timerLabel == LONG_BREAK) {
       this.setState((state) => ({
-        timeLeft: state.longBreakLength * 60,
+        timeLeft: state.longBreakLength * MINUTE,
       }));
     } else {
 
@@ -331,12 +402,42 @@ class PomodoroClock extends Component {
   }
 
   /**
-   * Toggles ON/OFF of the sound setting
+   * Toggles ON/OFF of the state according to checkbox
    */
-  toggleSoundSetting() {
-    this.setState((state) => ({
-      soundSetting: !state.soundSetting,
-    }));
+  handleCheckboxChange(event) {
+    this.setState({
+      [event.target.name]: event.target.checked,
+    });
+  }
+
+  handleNotifySettingChange(event) {
+    this.handleCheckboxChange(event);
+    console.log(Push.Permission.has());
+    if (event.target.checked && !Push.Permission.has()) {
+      console.log("Request permission");
+      Push.Permission.request(() => { // onGranted
+        this.notify(true, "You will receive a notification when a session/break is completed.");
+      }, () => { // onDenied
+        alert("Please allow notifications in browser settings.");
+      });
+    } else if (event.target.checked && Push.Permission.has()) {
+      this.notify(true, "You will receive a notification when a session/break is completed.");
+    }
+  }
+
+  /**
+   * Saves current settings
+   */
+  saveSettings() {
+    // Save current settings to localStorage
+    localStorage.breakLength = this.state.breakLength;
+    localStorage.sessionLength = this.state.sessionLength;
+    localStorage.sessionCycle = this.state.sessionCycle;
+    localStorage.longBreakLength = this.state.longBreakLength;
+    localStorage.soundSetting = this.state.soundSetting;
+    localStorage.notifySetting = this.state.notifySetting;
+
+    alert("Current settings saved.");
   }
 
   /**
@@ -360,7 +461,7 @@ class PomodoroClock extends Component {
 
           <div>
             <button id="start_stop" className="btn btn-light" onClick={this.startStop}>Start/Pause</button>
-            <button id="reset" className="btn btn-light" onClick={this.reset}>Reset</button>
+            <button id="reset" className="btn btn-light" onClick={this.reset}>Reset Timer</button>
           </div>
         </div>
 
@@ -404,33 +505,28 @@ class PomodoroClock extends Component {
           </div>
         </div>
 
-        <SoundSwitch soundSetting={this.state.soundSetting} onClick={this.toggleSoundSetting} />
+        <div id="settings-group" className="group">
+          <div id="sound-setting">
+            <label>
+              Sound&nbsp;
+              <input type="checkbox" name="soundSetting" checked={this.state.soundSetting} onChange={this.handleCheckboxChange} />
+            </label>
+          </div>
 
-        {/* audio elements
-        <audio
-          id="sound-session"
-          ref={(el) => (this.sound_session = el)}
-          preload="auto"
-          src={sessionSound}
-          controls
-        />
-        <audio
-          id="sound-break"
-          ref={(el) => (this.sound_break = el)}
-          preload="auto"
-          controls
-        >
-          <source src={one35} />
-        </audio>
-        <audio
-          id="sound-long-break"
-          ref={(el) => (this.sound_long_break = el)}
-          preload="auto"
-          controls
-        >
-          <source src={one30} />
-        </audio>
-        */}
+          <div id="notify-setting">
+            <label>
+              Notification&nbsp;
+              <input type="checkbox" name="notifySetting" checked={this.state.notifySetting} onChange={this.handleNotifySettingChange} />
+            </label>
+            <div>
+              <small>*Notifications will not work on iOS.</small>
+            </div>
+          </div>
+
+          <div id="save-settings">
+            <button className="btn btn-light" onClick={this.saveSettings}>Save Settings</button>
+          </div>
+        </div>
       </div>
     );
   }
