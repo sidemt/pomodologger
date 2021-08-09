@@ -7,7 +7,7 @@ class TimeLeft extends Component {
   constructor(props) {
     super(props);
 
-    this.mmss = this.mmss.bind(this);
+    this.hhmmss = this.hhmmss.bind(this);
     this.calcTimeLeft = this.calcTimeLeft.bind(this);
     this.displayTimeInTitle = this.displayTimeInTitle.bind(this);
   }
@@ -23,14 +23,19 @@ class TimeLeft extends Component {
   }
 
   /**
-   * Returns given minutes and seconds in "dd:dd" format
+   * Returns given minutes and seconds in "hh:mm:ss" format
+   * @param {Number} h
    * @param {Number} m
    * @param {Number} s
    */
-  mmss(m, s) {
+  hhmmss(h, m, s) {
+    var hh = '';
+    if (h > 0) {
+      hh = `${h}:`
+    }
     const m0 = (`00${m}`).slice(-2);
     const s0 = (`00${s}`).slice(-2);
-    return `${m0}:${s0}`;
+    return `${hh}${m0}:${s0}`;
   }
 
   /**
@@ -38,10 +43,11 @@ class TimeLeft extends Component {
    * @param {Number} timeLeft
    */
   calcTimeLeft(timeLeft) {
+    const hours = Math.floor((timeLeft / (60 * 60)));
     const minutes = Math.floor((timeLeft % (60 * 60)) / 60);
     const seconds = Math.floor(timeLeft % (60));
 
-    return this.mmss(minutes, seconds);
+    return this.hhmmss(hours, minutes, seconds);
   }
 
   /**
