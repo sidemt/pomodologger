@@ -68,6 +68,7 @@ class PomodoroClock extends Component {
     this.updateTimeLeft = this.updateTimeLeft.bind(this);
     this.saveSettings = this.saveSettings.bind(this);
     this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
+    this.handleNotifySettingChange = this.handleNotifySettingChange.bind(this);
   }
 
   sessionSound = new Audio(sessionSound);
@@ -409,6 +410,21 @@ class PomodoroClock extends Component {
     });
   }
 
+  handleNotifySettingChange(event) {
+    this.handleCheckboxChange(event);
+    console.log(Push.Permission.has());
+    if (event.target.checked && !Push.Permission.has()) {
+      console.log("Request permission");
+      Push.Permission.request(() => { // onGranted
+        this.notify(true, "You will receive a notification when a session/break is completed.");
+      }, () => { // onDenied
+        alert("Please allow notifications in browser settings.");
+      });
+    } else if (event.target.checked && Push.Permission.has()) {
+      this.notify(true, "You will receive a notification when a session/break is completed.");
+    }
+  }
+
   /**
    * Saves current settings
    */
@@ -500,7 +516,7 @@ class PomodoroClock extends Component {
           <div id="notify-setting">
             <label>
               Notification&nbsp;
-              <input type="checkbox" name="notifySetting" checked={this.state.notifySetting} onChange={this.handleCheckboxChange} />
+              <input type="checkbox" name="notifySetting" checked={this.state.notifySetting} onChange={this.handleNotifySettingChange} />
             </label>
           </div>
 
