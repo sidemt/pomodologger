@@ -518,6 +518,9 @@ class PomodoroClock extends Component {
               Notification&nbsp;
               <input type="checkbox" name="notifySetting" checked={this.state.notifySetting} onChange={this.handleNotifySettingChange} />
             </label>
+            <div>
+              <small>*Notifications will not work on iOS.</small>
+            </div>
           </div>
 
           <div id="save-settings">
