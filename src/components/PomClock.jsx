@@ -10,6 +10,8 @@ import longBreakSound from '../assets/audio/one30.mp3';
 
 import Push from 'push.js'
 
+import { parseBool } from '../features/helper/helper';
+
 // Variable to store the intervalID of setInterval
 // Used to stop the setInterval function by clearInterval
 let intervalId;
@@ -20,6 +22,19 @@ const SESSION = 'Session';
 const LONG_BREAK = 'Long Break';
 
 const MINUTE = 60;
+
+const defaultValues = {
+  timerLabel: SESSION,
+  timeLeft: 1500,
+  breakLength: 5,
+  sessionLength: 25,
+  currentCount: 1,
+  sessionCycle: 4,
+  longBreakLength: 15,
+  isRunning: false,
+  soundSetting: true,
+  notifySetting: false
+}
 
 class PomodoroClock extends Component {
   constructor(props) {
@@ -51,8 +66,8 @@ class PomodoroClock extends Component {
     this.toggleTimer = this.toggleTimer.bind(this);
     this.startStop = this.startStop.bind(this);
     this.updateTimeLeft = this.updateTimeLeft.bind(this);
-    this.toggleSoundSetting = this.toggleSoundSetting.bind(this);
-    this.toggleNotifySetting = this.toggleNotifySetting.bind(this);
+    this.saveSettings = this.saveSettings.bind(this);
+    this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
   }
 
   sessionSound = new Audio(sessionSound);
@@ -60,9 +75,19 @@ class PomodoroClock extends Component {
   longBreakSound = new Audio(longBreakSound);
 
   componentDidMount() {
-    console.log("componetDidMount");
-    // Connection to audio elements
+    console.log("componentDidMount");
+    // Get saved settings from localStorage
+    this.setState({
+      timeLeft: parseInt(localStorage.sessionLength, 10) * MINUTE || defaultValues.timeLeft,
+      breakLength: parseInt(localStorage.breakLength, 10) || defaultValues.breakLength,
+      sessionLength: parseInt(localStorage.sessionLength, 10) || defaultValues.sessionLength,
+      sessionCycle: parseInt(localStorage.sessionCycle, 10) || defaultValues.sessionCycle,
+      longBreakLength: parseInt(localStorage.longBreakLength, 10) || defaultValues.longBreakLength,
+      soundSetting: parseBool(localStorage.soundSetting, defaultValues.soundSetting),
+      notifySetting: parseBool(localStorage.notifySetting, defaultValues.notifySetting)
+    });
 
+    // Connection to audio elements
     // Audio elements
     this.SOUND_SESSION = this.sessionSound;
     this.SOUND_BREAK = this.breakSound;
@@ -131,12 +156,12 @@ class PomodoroClock extends Component {
     // Reset timer
     this.setState({
       timerLabel: SESSION,
-      timeLeft: 1500,
-      breakLength: 5,
-      sessionLength: 25,
+      timeLeft: parseInt(localStorage.sessionLength, 10) * MINUTE || defaultValues.timeLeft,
+      breakLength: parseInt(localStorage.breakLength, 10) || defaultValues.breakLength,
+      sessionLength: parseInt(localStorage.sessionLength, 10) || defaultValues.sessionLength,
       currentCount: 1,
-      sessionCycle: 4,
-      longBreakLength: 15,
+      sessionCycle: parseInt(localStorage.sessionCycle, 10) || defaultValues.sessionCycle,
+      longBreakLength: parseInt(localStorage.longBreakLength, 10) || defaultValues.longBreakLength,
       isRunning: false,
     });
     clearInterval(intervalId);
@@ -376,22 +401,28 @@ class PomodoroClock extends Component {
   }
 
   /**
-   * Toggles ON/OFF of the sound setting
+   * Toggles ON/OFF of the state according to checkbox
    */
-  toggleSoundSetting() {
-    this.setState((state) => ({
-      soundSetting: !state.soundSetting,
-    }));
+  handleCheckboxChange(event) {
+    this.setState({
+      [event.target.name]: event.target.checked,
+    });
   }
 
   /**
-   * Toggles ON/OFF of the notify setting
+   * Saves current settings
    */
-    toggleNotifySetting() {
-      this.setState((state) => ({
-        notifySetting: !state.notifySetting,
-      }));
-    }
+  saveSettings() {
+    // Save current settings to localStorage
+    localStorage.breakLength = this.state.breakLength;
+    localStorage.sessionLength = this.state.sessionLength;
+    localStorage.sessionCycle = this.state.sessionCycle;
+    localStorage.longBreakLength = this.state.longBreakLength;
+    localStorage.soundSetting = this.state.soundSetting;
+    localStorage.notifySetting = this.state.notifySetting;
+
+    alert("Current settings saved.");
+  }
 
   /**
    * Render the pomodoro timer
@@ -414,7 +445,7 @@ class PomodoroClock extends Component {
 
           <div>
             <button id="start_stop" className="btn btn-light" onClick={this.startStop}>Start/Pause</button>
-            <button id="reset" className="btn btn-light" onClick={this.reset}>Reset</button>
+            <button id="reset" className="btn btn-light" onClick={this.reset}>Reset Timer</button>
           </div>
         </div>
 
@@ -458,20 +489,24 @@ class PomodoroClock extends Component {
           </div>
         </div>
 
-        {/* <SoundSwitch soundSetting={this.state.soundSetting} onClick={this.toggleSoundSetting} /> */}
-        {/* <NotificationSwitch notifySetting={this.state.notifySetting} onClick={this.toggleNotifySetting} /> */}
-        <div id="sound-setting">
-          <label>
-            Sound&nbsp;
-            {this.state.soundSetting ? <input type="checkbox" checked onChange={this.toggleSoundSetting} /> : <input type="checkbox" onChange={this.toggleSoundSetting} />}
-          </label>
-        </div>
+        <div id="settings-group" className="group">
+          <div id="sound-setting">
+            <label>
+              Sound&nbsp;
+              <input type="checkbox" name="soundSetting" checked={this.state.soundSetting} onChange={this.handleCheckboxChange} />
+            </label>
+          </div>
 
-        <div id="notify-setting">
-          <label>
-            Notification&nbsp;
-            {this.state.notifySetting ? <input type="checkbox" checked onChange={this.toggleNotifySetting} /> : <input type="checkbox" onChange={this.toggleNotifySetting} />}
-          </label>
+          <div id="notify-setting">
+            <label>
+              Notification&nbsp;
+              <input type="checkbox" name="notifySetting" checked={this.state.notifySetting} onChange={this.handleCheckboxChange} />
+            </label>
+          </div>
+
+          <div id="save-settings">
+            <button className="btn btn-light" onClick={this.saveSettings}>Save Settings</button>
+          </div>
         </div>
       </div>
     );
