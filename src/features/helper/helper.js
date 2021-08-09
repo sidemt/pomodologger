@@ -1,4 +1,4 @@
-export function parseBool(str, defaultValue = false) {
+export function parseBool(str = '', defaultValue = false) {
   switch (str.toLowerCase()) {
     case 'true':
       return true;
