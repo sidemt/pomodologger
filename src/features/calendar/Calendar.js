@@ -1,11 +1,9 @@
-import * as Keys from '../../keys';
-
 // Array of API discovery doc URLs for APIs used by the quickstart
 const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'];
 
 // Authorization scopes required by the API; multiple scopes can be
 // included, separated by spaces.
-const SCOPES = 'https://www.googleapis.com/auth/calendar';
+const SCOPES = 'https://www.googleapis.com/auth/calendar.events';
 
 /* global gapi */
 
@@ -26,8 +24,8 @@ export function initClient() {
   const createButton = document.getElementById('create_button');
 
   gapi.client.init({
-    apiKey: Keys.API_KEY,
-    clientId: Keys.CLIENT_ID,
+    apiKey: process.env.REACT_APP_API_KEY,
+    clientId: process.env.REACT_APP_CLIENT_ID,
     discoveryDocs: DISCOVERY_DOCS,
     scope: SCOPES,
   }).then(() => {
@@ -168,38 +166,44 @@ export function rfc3339(d) {
  * Add and event to the calendar when create button is clicked
  */
 export function createEvent(duration, eventName = 'Pomodoro', eventDetail = '', calendarId = 'primary') {
-  if (gapi.auth2.getAuthInstance().isSignedIn.get()) {
-    let startTime = new Date();
-    let endTime = new Date();
-    startTime.setMinutes(startTime.getMinutes() - duration);
-    // Convert date to RFC3339 format
-    startTime = rfc3339(startTime);
-    endTime = rfc3339(endTime);
+  try{
+    if (gapi.auth2.getAuthInstance().isSignedIn.get()) {
+      let startTime = new Date();
+      let endTime = new Date();
+      startTime.setMinutes(startTime.getMinutes() - duration);
+      // Convert date to RFC3339 format
+      startTime = rfc3339(startTime);
+      endTime = rfc3339(endTime);
 
-    const event = {
-      summary: eventName,
-      start: {
-        dateTime: startTime,
-      },
-      end: {
-        dateTime: endTime,
-      },
-      description: eventDetail,
-    };
+      const event = {
+        summary: eventName,
+        start: {
+          dateTime: startTime,
+        },
+        end: {
+          dateTime: endTime,
+        },
+        description: eventDetail,
+      };
 
-    const request = gapi.client.calendar.events.insert({
-      calendarId,
-      resource: event,
-    });
+      const request = gapi.client.calendar.events.insert({
+        calendarId,
+        resource: event,
+      });
 
-    request.execute((event) => {
-      console.log(event);
-      const newText = `Pomodoro Done: ${event.summary} <a href=\"${event.htmlLink}\" target=\"_blank\">[View in Calendar]</a>`;
+      request.execute((event) => {
+        console.log(event);
+        const newText = `Pomodoro Done: ${event.summary} <a href=\"${event.htmlLink}\" target=\"_blank\">[View in Calendar]</a>`;
+        appendOl(newText);
+      });
+    } else {
+      console.log('Not signed in');
+      const newText = 'Pomodoro Done: Not Signed In';
       appendOl(newText);
-    });
-  } else {
-    console.log('Not signed in');
-    const newText = 'Pomodoro Done: Not Signed In';
+    }
+  } catch (error) {
+    console.error(error);
+    const newText = 'Pomodoro Done: Failed to create a log on Calendar.';
     appendOl(newText);
   }
 }

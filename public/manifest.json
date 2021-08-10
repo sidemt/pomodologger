@@ -20,7 +20,8 @@
     }
   ],
   "start_url": ".",
-  "display": "minimal-ui",
+  "display": "standalone",
+  "display_override": ["minimal-ui", "standalone"],
   "theme_color": "#000000",
   "background_color": "#ef6461"
 }
