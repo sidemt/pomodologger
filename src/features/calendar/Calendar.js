@@ -1,5 +1,3 @@
-import * as Keys from '../../keys';
-
 // Array of API discovery doc URLs for APIs used by the quickstart
 const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'];
 
@@ -26,8 +24,8 @@ export function initClient() {
   const createButton = document.getElementById('create_button');
 
   gapi.client.init({
-    apiKey: Keys.API_KEY,
-    clientId: Keys.CLIENT_ID,
+    apiKey: process.env.REACT_APP_API_KEY,
+    clientId: process.env.REACT_APP_CLIENT_ID,
     discoveryDocs: DISCOVERY_DOCS,
     scope: SCOPES,
   }).then(() => {
