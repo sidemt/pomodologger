@@ -21,6 +21,4 @@ a:hover {
   display: flex;
   font-family: "Comfortaa", cursive;
   justify-content: center;
-
-  touch-action: manipulation;
 }

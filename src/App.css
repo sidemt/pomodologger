@@ -78,3 +78,13 @@ footer li {
   padding-left: .5rem;
   padding-right: .5rem;
 }
+
+@media (max-width: 767.98px) {
+  body {
+    touch-action: manipulation;
+  }
+
+  h1 {
+    font-size: 2.2rem;
+  }
+}
