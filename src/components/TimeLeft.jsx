@@ -56,7 +56,7 @@ class TimeLeft extends Component {
    * @param {String} timerLabel
    */
   displayTimeInTitle(timeLeft, timerLabel) {
-    document.title = `${this.calcTimeLeft(timeLeft)} [${timerLabel}] - Pom-Cal`;
+    document.title = `${this.calcTimeLeft(timeLeft)} [${timerLabel}] - Pomodologger`;
   }
 
 

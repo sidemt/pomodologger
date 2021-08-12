@@ -29,8 +29,8 @@ class App extends Component {
             {' '}
             <a href="ja/index.html">Japanese</a>
           </div>
-          <h1>Pom-Cal</h1>
-          <p>Pomodoro timer integrated with Google Calendar</p>
+          <h1>Pomodologger</h1>
+          <p>Pomodoro timer with Google Calendar log</p>
 
           <PomodoroClock />
 
@@ -93,7 +93,7 @@ class App extends Component {
             </ul>
 
             <small>
-              (c) 2018
+              (c) 2018-2021
               {' '}
               <a href="https://www.charonworks.com" target="_blank">Charonworks</a>
             </small>
