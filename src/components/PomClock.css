@@ -7,15 +7,25 @@
 #pomodoro-clock-inside {
   align-items: center;
   display: grid;
-  grid-template-columns: 33% 33% 33%;
+  grid-template-columns: 25% 25% 25% 25%;
   justify-content: space-between;
   width: 100%;
 }
 
 #pomodoro-clock-inside .timer {
-  grid-column: 1 / span 2;
+  grid-column: 1 / span 3;
   grid-row: 1;
   width: auto;
+}
+
+#pomodoro-clock-inside .reset-btns {
+  grid-column: 4;
+  grid-row: 1;
+  width: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 #pomodoro-clock-inside .session-length {
@@ -37,8 +47,8 @@
 }
 
 #pomodoro-clock-inside .cycle-count {
-  grid-column: 3;
-  grid-row: 1;
+  grid-column: 4;
+  grid-row: 2;
   width: auto;
 }
 
@@ -57,6 +67,13 @@
   border: 1px solid var(--main-white);
   border-radius: 5px;
   height: 90%;
+}
+
+#pomodoro-clock-inside .btn-set.space-between {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
 }
 
 #pomodoro-clock-inside .btn-set input {
@@ -78,14 +95,27 @@
 }
 
 #settings-group {
-  grid-column: 1 / span 3;
+  grid-column: 1 / span 4;
   grid-row: 4;
-  display: flex;
+  display: grid;
+  grid-template-columns: auto auto auto;
   align-items: baseline;
-  justify-content: space-evenly;
+  justify-content: center;
   flex-wrap: wrap;
   padding: 0.5rem;
 }
+
+#settings-group div {
+  margin: 0 .5rem;
+}
+
+#settings-note {
+  grid-column: 1 / span 4;
+  grid-row: 2;
+  width: auto;
+}
+
+
 
 @media (max-width: 767.98px) {
   #pomodoro-clock-inside {
@@ -122,11 +152,19 @@
     width: auto;
   }
 
-  #sound-setting {
+  #pomodoro-clock-inside .reset-btns {
     grid-column: 1 / span 2;
     grid-row: 4;
+    width: auto;
+  }
+
+  #settings-group {
+    grid-column: 1 / span 2;
+    grid-row: 5;
     display: flex;
-    align-items: center;
+    align-items: baseline;
     justify-content: center;
+    flex-wrap: wrap;
+    padding: 0.5rem;
   }
 }
