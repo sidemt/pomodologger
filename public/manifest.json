@@ -1,7 +1,6 @@
 {
   "short_name": "Pomodologger",
-  "name": "Pomodologger by Charonworks",
-  "description": "Pomodoro timer with logging to Google Calendar",
+  "description": "Pomodoro timer with Google Calendar log",
   "icons": [
     {
       "src": "favicon.ico",
@@ -22,6 +21,6 @@
   "start_url": ".",
   "display": "standalone",
   "display_override": ["minimal-ui", "standalone"],
-  "theme_color": "#000000",
+  "theme_color": "#ef6461",
   "background_color": "#ef6461"
 }
