@@ -99,8 +99,6 @@ class PomodoroClock extends Component {
     this.beep = this.SOUND_SESSION;
   }
 
-
-
   /**
    * Checks the sound setting and plays the sound currently set in variable `beep`
    * @param {Boolean} soundSetting
@@ -123,34 +121,34 @@ class PomodoroClock extends Component {
     }
   }
 
-    /**
-     * Checks the notification setting and send a notification
-     * @param {Boolean} notifySetting
-     * @param {String} message
-     * @param {String} body
-     */
-    notify(notifySetting, message, body = '') {
-      console.log("notify");
-      // Send a notification if notify settings is ON (true)
-      if (notifySetting) {
-        Push.create(message, {
-          body: body,
-          timeout: 50000,
-          onClick: function () {
-              this.close();
-          }
-        })
-        .then(() => {
-          console.log('notify success');
-        })
-        .catch(err => {
-          console.error('notify error:', err);
-        })
-        .finally(() => {
-          console.log('notify finally');
-        })
-      }
+  /**
+   * Checks the notification setting and send a notification
+   * @param {Boolean} notifySetting
+   * @param {String} message
+   * @param {String} body
+   */
+  notify(notifySetting, message, body = '') {
+    console.log("notify");
+    // Send a notification if notify settings is ON (true)
+    if (notifySetting) {
+      Push.create(message, {
+        body: body,
+        timeout: 50000,
+        onClick: function () {
+            this.close();
+        }
+      })
+      .then(() => {
+        console.log('notify success');
+      })
+      .catch(err => {
+        console.error('notify error:', err);
+      })
+      .finally(() => {
+        console.log('notify finally');
+      })
     }
+  }
 
   /**
    * Resets the timer to default state
@@ -289,7 +287,7 @@ class PomodoroClock extends Component {
      * Toggle session/break
      */
   toggleTimer() {
-    if (this.state.timerLabel == SESSION) {
+    if (this.state.timerLabel === SESSION) {
       // When a session ends
       // Insert an event to the calendar
       const name = document.getElementById('current-event-name').innerText;
@@ -386,15 +384,15 @@ class PomodoroClock extends Component {
    * @param {String} label
    */
   updateTimeLeft(label) {
-    if (label == SESSION && this.state.timerLabel == SESSION) {
+    if (label === SESSION && this.state.timerLabel === SESSION) {
       this.setState((state) => ({
         timeLeft: state.sessionLength * MINUTE,
       }));
-    } else if (label == BREAK && this.state.timerLabel == BREAK) {
+    } else if (label === BREAK && this.state.timerLabel === BREAK) {
       this.setState((state) => ({
         timeLeft: state.breakLength * MINUTE,
       }));
-    } else if (label == LONG_BREAK && this.state.timerLabel == LONG_BREAK) {
+    } else if (label === LONG_BREAK && this.state.timerLabel === LONG_BREAK) {
       this.setState((state) => ({
         timeLeft: state.longBreakLength * MINUTE,
       }));
