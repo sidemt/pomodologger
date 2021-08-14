@@ -59,8 +59,13 @@
   height: 90%;
 }
 
+#pomodoro-clock-inside .btn-set input {
+  margin-bottom: .5rem;
+}
+
 #pomodoro-clock-inside .label {
   font-size: 1.1rem;
+  margin-bottom: .5rem;
 }
 
 #pomodoro-clock-inside .time {

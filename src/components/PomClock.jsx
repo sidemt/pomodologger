@@ -56,14 +56,9 @@ class PomodoroClock extends Component {
     this.playSound = this.playSound.bind(this);
     this.notify = this.notify.bind(this);
     this.reset = this.reset.bind(this);
-    this.decrementBreak = this.decrementBreak.bind(this);
-    this.incrementBreak = this.incrementBreak.bind(this);
-    this.decrementSession = this.decrementSession.bind(this);
-    this.incrementSession = this.incrementSession.bind(this);
-    this.decrementCycle = this.decrementCycle.bind(this);
-    this.incrementCycle = this.incrementCycle.bind(this);
-    this.decrementLongBreak = this.decrementLongBreak.bind(this);
-    this.incrementLongBreak = this.incrementLongBreak.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleInputEnter = this.handleInputEnter.bind(this);
+    this.handleInputBlur = this.handleInputBlur.bind(this);
     this.countDown = this.countDown.bind(this);
     this.toggleTimer = this.toggleTimer.bind(this);
     this.startStop = this.startStop.bind(this);
@@ -175,96 +170,63 @@ class PomodoroClock extends Component {
   }
 
   /**
-   * Decrements Break length by 1 min
+   * Update state according to user input
    */
-  decrementBreak() {
-    if (this.state.breakLength > 1) {
-      this.setState((state) => ({
-        breakLength: state.breakLength - 1,
-      }));
-      this.updateTimeLeft(BREAK);
+  handleInputChange(event) {
+    const inputValue = event.target.value;
+    const inputName = event.target.name;
+    const parsedValue =  parseInt(inputValue, 10);
+    if (parsedValue >= 0 && parsedValue <= 120) {
+      this.setState({[inputName]: parsedValue});
+    } else if (parsedValue < 0) {
+      this.setState({[inputName]: 0});
+    } else if (parsedValue > 120) {
+      this.setState({[inputName]: 120});
+    } else {
+      this.setState({[inputName]: 0});
     }
   }
 
   /**
-   * Increments Break length by 1 min
+   * Update current timer when focus is moved out of a input field
    */
-  incrementBreak() {
-    if (this.state.breakLength < 120) {
-      this.setState((state) => ({
-        breakLength: state.breakLength + 1,
-      }));
-      this.updateTimeLeft(BREAK);
+  handleInputBlur(event) {
+    const inputValue = event.target.value;
+    const inputName = event.target.name;
+    const parsedValue =  parseInt(inputValue, 10);
+    if (parsedValue > 0 && parsedValue <= 120) {
+      this.setState({[inputName]: parsedValue});
+    } else if (parsedValue <= 0) {
+      // Change 0 value to 1 so that the timer works properly
+      this.setState({[inputName]: 1});
+    } else if (parsedValue > 120) {
+      this.setState({[inputName]: 120});
+    } else {
+      // Change 0 value to 1 so that the timer works properly
+      this.setState({[inputName]: 1});
+    }
+
+    // Update timer
+    switch(event.target.name) {
+      case "sessionLength":
+        this.updateTimeLeft(SESSION);
+        break;
+      case "breakLength":
+        this.updateTimeLeft(BREAK);
+        break;
+      case "longBreakLength":
+        this.updateTimeLeft(LONG_BREAK);
+      default:
+        // No need to update timer
     }
   }
 
   /**
-   * Decrements Session length by 1 min
+   * Move focus out of a input field by Enter key
    */
-  decrementSession() {
-    if (this.state.sessionLength > 1) {
-      this.setState((state) => ({
-        sessionLength: state.sessionLength - 1,
-      }));
-      this.updateTimeLeft(SESSION);
-    }
-  }
-
-  /**
-   * Increments Session length by 1 min
-   */
-  incrementSession() {
-    if (this.state.sessionLength < 120) {
-      this.setState((state) => ({
-        sessionLength: state.sessionLength + 1,
-      }));
-      this.updateTimeLeft(SESSION);
-    }
-  }
-
-  /**
-   * Decrements sessionCycle count by 1
-   */
-  decrementCycle() {
-    if (this.state.sessionCycle > 1) {
-      this.setState((state) => ({
-        sessionCycle: state.sessionCycle - 1,
-      }));
-    }
-  }
-
-  /**
-   * Increments sessionCycle count by 1
-   */
-  incrementCycle() {
-    if (this.state.sessionCycle < 99) {
-      this.setState((state) => ({
-        sessionCycle: state.sessionCycle + 1,
-      }));
-    }
-  }
-
-  /**
-   * Decrements long break length by 1 min
-   */
-  decrementLongBreak() {
-    if (this.state.longBreakLength > 1) {
-      this.setState((state) => ({
-        longBreakLength: state.longBreakLength - 1,
-      }));
-      this.updateTimeLeft(LONG_BREAK);
-    }
-  }
-
-  /**
-   * Increments long break length by 1 min
-   */
-  incrementLongBreak() {
-    if (this.state.longBreakLength < 120) {
-      this.setState((state) => ({
-        longBreakLength: state.longBreakLength + 1,
-      }));
-      this.updateTimeLeft(LONG_BREAK);
+  handleInputEnter(event) {
+    if (event.keyCode === 13) {
+      event.target.blur();
     }
   }
 
@@ -467,41 +429,36 @@ class PomodoroClock extends Component {
 
         <div className="btn-set session-length">
           <div id="session-label" className="label">Session Length</div>
-          <div id="session-length" className="time">{this.state.sessionLength}</div>
           <div>
-            <button id="session-decrement" className="btn btn-light fixed-width" onClick={this.decrementSession}>-</button>
-            <button id="session-increment" className="btn btn-light fixed-width" onClick={this.incrementSession}>+</button>
+            <input className="form-control text-center" type="text" name="sessionLength" value={this.state.sessionLength} onChange={this.handleInputChange} onBlur={this.handleInputBlur} onKeyDown={this.handleInputEnter} />
+            <div>minutes</div>
           </div>
+
         </div>
 
         <div className="btn-set break-length">
           <div id="break-label" className="label">Break Length</div>
-          <div id="break-length" className="time">{this.state.breakLength}</div>
           <div>
-            <button id="break-decrement" className="btn btn-light fixed-width" onClick={this.decrementBreak}>-</button>
-            <button id="break-increment" className="btn btn-light fixed-width" onClick={this.incrementBreak}>+</button>
+            <input className="form-control text-center" type="text" name="breakLength" value={this.state.breakLength} onChange={this.handleInputChange} onBlur={this.handleInputBlur} onKeyDown={this.handleInputEnter} />
+            <div>minutes</div>
           </div>
+
         </div>
 
         <div className="btn-set long-break-length">
           <div id="long-break-label" className="label">Long Break Length</div>
-          <div id="long-break-length" className="time">{this.state.longBreakLength}</div>
           <div>
-            <button id="long-break-decrement" className="btn btn-light fixed-width" onClick={this.decrementLongBreak}>-</button>
-            <button id="long-break-increment" className="btn btn-light fixed-width" onClick={this.incrementLongBreak}>+</button>
+            <input className="form-control text-center" type="text" name="longBreakLength" value={this.state.longBreakLength} onChange={this.handleInputChange} onBlur={this.handleInputBlur} onKeyDown={this.handleInputEnter} />
+            <div>minutes</div>
           </div>
+
         </div>
 
         <div className="btn-set cycle-count">
           <div id="cycle-label" className="label">Long break after</div>
-          <div id="cycle-count" className="time">
-            {this.state.sessionCycle}
-            {' '}
-            sessions
-          </div>
-          <div>
-            <button id="cycle-decrement" className="btn btn-light fixed-width" onClick={this.decrementCycle}>-</button>
-            <button id="cycle-increment" className="btn btn-light fixed-width" onClick={this.incrementCycle}>+</button>
+          <div id="cycle-count" className="">
+            <input className="form-control text-center" type="text" name="sessionCycle" value={this.state.sessionCycle} onChange={this.handleInputChange} onBlur={this.handleInputBlur} onKeyDown={this.handleInputEnter} />
+            <div>sessions</div>
           </div>
         </div>
 
