@@ -55,19 +55,18 @@ class PomodoroClock extends Component {
     };
     this.playSound = this.playSound.bind(this);
     this.notify = this.notify.bind(this);
+    this.restart = this.restart.bind(this);
+    this.loadTimer = this.loadTimer.bind(this);
     this.reset = this.reset.bind(this);
-    this.decrementBreak = this.decrementBreak.bind(this);
-    this.incrementBreak = this.incrementBreak.bind(this);
-    this.decrementSession = this.decrementSession.bind(this);
-    this.incrementSession = this.incrementSession.bind(this);
-    this.decrementCycle = this.decrementCycle.bind(this);
-    this.incrementCycle = this.incrementCycle.bind(this);
-    this.decrementLongBreak = this.decrementLongBreak.bind(this);
-    this.incrementLongBreak = this.incrementLongBreak.bind(this);
+    this.resetTimerState = this.resetTimerState.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleInputEnter = this.handleInputEnter.bind(this);
+    this.handleInputBlur = this.handleInputBlur.bind(this);
     this.countDown = this.countDown.bind(this);
     this.toggleTimer = this.toggleTimer.bind(this);
     this.startStop = this.startStop.bind(this);
     this.updateTimeLeft = this.updateTimeLeft.bind(this);
+    this.saveTimer = this.saveTimer.bind(this);
     this.saveSettings = this.saveSettings.bind(this);
     this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
     this.handleNotifySettingChange = this.handleNotifySettingChange.bind(this);
@@ -99,8 +98,6 @@ class PomodoroClock extends Component {
     this.beep = this.SOUND_SESSION;
   }
 
-
-
   /**
    * Checks the sound setting and plays the sound currently set in variable `beep`
    * @param {Boolean} soundSetting
@@ -123,39 +120,53 @@ class PomodoroClock extends Component {
     }
   }
 
-    /**
-     * Checks the notification setting and send a notification
-     * @param {Boolean} notifySetting
-     * @param {String} message
-     * @param {String} body
-     */
-    notify(notifySetting, message, body = '') {
-      console.log("notify");
-      // Send a notification if notify settings is ON (true)
-      if (notifySetting) {
-        Push.create(message, {
-          body: body,
-          timeout: 50000,
-          onClick: function () {
-              this.close();
-          }
-        })
-        .then(() => {
-          console.log('notify success');
-        })
-        .catch(err => {
-          console.error('notify error:', err);
-        })
-        .finally(() => {
-          console.log('notify finally');
-        })
-      }
+  /**
+   * Checks the notification setting and send a notification
+   * @param {Boolean} notifySetting
+   * @param {String} message
+   * @param {String} body
+   */
+  notify(notifySetting, message, body = '') {
+    console.log("notify");
+    // Send a notification if notify settings is ON (true)
+    if (notifySetting) {
+      Push.create(message, {
+        body: body,
+        timeout: 50000,
+        onClick: function () {
+            this.close();
+        }
+      })
+      .then(() => {
+        console.log('notify success');
+      })
+      .catch(err => {
+        console.error('notify error:', err);
+      })
+      .finally(() => {
+        console.log('notify finally');
+      })
     }
+  }
 
   /**
-   * Resets the timer to default state
+   * Restart the timer with current value
    */
-  reset() {
+  restart() {
+    // Reset timer
+    this.setState({
+      timerLabel: SESSION,
+      timeLeft: this.state.sessionLength * MINUTE,
+      currentCount: 1,
+      isRunning: false,
+    });
+    this.resetTimerState();
+  }
+
+  /**
+   * Resets the timer to saved state
+   */
+  loadTimer() {
     // Reset timer
     this.setState({
       timerLabel: SESSION,
@@ -167,6 +178,31 @@ class PomodoroClock extends Component {
       longBreakLength: parseInt(localStorage.longBreakLength, 10) || defaultValues.longBreakLength,
       isRunning: false,
     });
+    this.resetTimerState();
+  }
+
+  /**
+   * Resets the timer to default state
+   */
+  reset() {
+    // Reset timer
+    this.setState({
+      timerLabel: SESSION,
+      timeLeft: defaultValues.timeLeft,
+      breakLength: defaultValues.breakLength,
+      sessionLength: defaultValues.sessionLength,
+      currentCount: 1,
+      sessionCycle: defaultValues.sessionCycle,
+      longBreakLength: defaultValues.longBreakLength,
+      isRunning: false,
+    });
+    this.resetTimerState();
+  }
+
+  /**
+   * Stops timer count, resets sound and background color
+   */
+  resetTimerState() {
     clearInterval(intervalId);
     // Reset sound
     this.beep.pause();
@@ -176,97 +212,66 @@ class PomodoroClock extends Component {
     document.getElementById('body').style.backgroundColor = 'var(--main-red)';
   }
 
+
+
   /**
-   * Decrements Break length by 1 min
+   * Update state according to user input
    */
-  decrementBreak() {
-    if (this.state.breakLength > 1) {
-      this.setState((state) => ({
-        breakLength: state.breakLength - 1,
-      }));
-      this.updateTimeLeft(BREAK);
+  handleInputChange(event) {
+    const inputValue = event.target.value;
+    const inputName = event.target.name;
+    const parsedValue =  parseInt(inputValue, 10);
+    if (parsedValue >= 0 && parsedValue <= 120) {
+      this.setState({[inputName]: parsedValue});
+    } else if (parsedValue < 0) {
+      this.setState({[inputName]: 0});
+    } else if (parsedValue > 120) {
+      this.setState({[inputName]: 120});
+    } else {
+      this.setState({[inputName]: 0});
     }
   }
 
   /**
-   * Increments Break length by 1 min
+   * Update current timer when focus is moved out of a input field
    */
-  incrementBreak() {
-    if (this.state.breakLength < 120) {
-      this.setState((state) => ({
-        breakLength: state.breakLength + 1,
-      }));
-      this.updateTimeLeft(BREAK);
+  handleInputBlur(event) {
+    const inputValue = event.target.value;
+    const inputName = event.target.name;
+    const parsedValue =  parseInt(inputValue, 10);
+    if (parsedValue > 0 && parsedValue <= 120) {
+      this.setState({[inputName]: parsedValue});
+    } else if (parsedValue <= 0) {
+      // Change 0 value to 1 so that the timer works properly
+      this.setState({[inputName]: 1});
+    } else if (parsedValue > 120) {
+      this.setState({[inputName]: 120});
+    } else {
+      // Change 0 value to 1 so that the timer works properly
+      this.setState({[inputName]: 1});
+    }
+
+    // Update timer
+    switch(event.target.name) {
+      case "sessionLength":
+        this.updateTimeLeft(SESSION);
+        break;
+      case "breakLength":
+        this.updateTimeLeft(BREAK);
+        break;
+      case "longBreakLength":
+        this.updateTimeLeft(LONG_BREAK);
+      default:
+        // No need to update timer
     }
   }
 
   /**
-   * Decrements Session length by 1 min
+   * Move focus out of a input field by Enter key
    */
-  decrementSession() {
-    if (this.state.sessionLength > 1) {
-      this.setState((state) => ({
-        sessionLength: state.sessionLength - 1,
-      }));
-      this.updateTimeLeft(SESSION);
-    }
-  }
-
-  /**
-   * Increments Session length by 1 min
-   */
-  incrementSession() {
-    if (this.state.sessionLength < 120) {
-      this.setState((state) => ({
-        sessionLength: state.sessionLength + 1,
-      }));
-      this.updateTimeLeft(SESSION);
-    }
-  }
-
-  /**
-   * Decrements sessionCycle count by 1
-   */
-  decrementCycle() {
-    if (this.state.sessionCycle > 1) {
-      this.setState((state) => ({
-        sessionCycle: state.sessionCycle - 1,
-      }));
-    }
-  }
-
-  /**
-   * Increments sessionCycle count by 1
-   */
-  incrementCycle() {
-    if (this.state.sessionCycle < 99) {
-      this.setState((state) => ({
-        sessionCycle: state.sessionCycle + 1,
-      }));
-    }
-  }
-
-  /**
-   * Decrements long break length by 1 min
-   */
-  decrementLongBreak() {
-    if (this.state.longBreakLength > 1) {
-      this.setState((state) => ({
-        longBreakLength: state.longBreakLength - 1,
-      }));
-      this.updateTimeLeft(LONG_BREAK);
-    }
-  }
-
-  /**
-   * Increments long break length by 1 min
-   */
-  incrementLongBreak() {
-    if (this.state.longBreakLength < 120) {
-      this.setState((state) => ({
-        longBreakLength: state.longBreakLength + 1,
-      }));
-      this.updateTimeLeft(LONG_BREAK);
+  handleInputEnter(event) {
+    if (event.keyCode === 13) {
+      event.target.blur();
     }
   }
 
@@ -289,7 +294,7 @@ class PomodoroClock extends Component {
      * Toggle session/break
      */
   toggleTimer() {
-    if (this.state.timerLabel == SESSION) {
+    if (this.state.timerLabel === SESSION) {
       // When a session ends
       // Insert an event to the calendar
       const name = document.getElementById('current-event-name').innerText;
@@ -386,15 +391,15 @@ class PomodoroClock extends Component {
    * @param {String} label
    */
   updateTimeLeft(label) {
-    if (label == SESSION && this.state.timerLabel == SESSION) {
+    if (label === SESSION && this.state.timerLabel === SESSION) {
       this.setState((state) => ({
         timeLeft: state.sessionLength * MINUTE,
       }));
-    } else if (label == BREAK && this.state.timerLabel == BREAK) {
+    } else if (label === BREAK && this.state.timerLabel === BREAK) {
       this.setState((state) => ({
         timeLeft: state.breakLength * MINUTE,
       }));
-    } else if (label == LONG_BREAK && this.state.timerLabel == LONG_BREAK) {
+    } else if (label === LONG_BREAK && this.state.timerLabel === LONG_BREAK) {
       this.setState((state) => ({
         timeLeft: state.longBreakLength * MINUTE,
       }));
@@ -428,18 +433,30 @@ class PomodoroClock extends Component {
   }
 
   /**
+   * Saves timer settings
+   */
+  saveTimer() {
+    if (window.confirm("Current timer settings will be saved in your browser's local storage.")) {
+      // Save current settings to localStorage
+      localStorage.breakLength = this.state.breakLength;
+      localStorage.sessionLength = this.state.sessionLength;
+      localStorage.sessionCycle = this.state.sessionCycle;
+      localStorage.longBreakLength = this.state.longBreakLength;
+      alert("Timer settings were saved.");
+    }
+  }
+
+  /**
    * Saves current settings
    */
   saveSettings() {
-    // Save current settings to localStorage
-    localStorage.breakLength = this.state.breakLength;
-    localStorage.sessionLength = this.state.sessionLength;
-    localStorage.sessionCycle = this.state.sessionCycle;
-    localStorage.longBreakLength = this.state.longBreakLength;
-    localStorage.soundSetting = this.state.soundSetting;
-    localStorage.notifySetting = this.state.notifySetting;
+    if (window.confirm("Current Sound & notification settings will be saved in your browser's local storage.")) {
+      // Save current settings to localStorage
+      localStorage.soundSetting = this.state.soundSetting;
+      localStorage.notifySetting = this.state.notifySetting;
 
-    alert("Current settings saved.");
+      alert("Sound & notification settings were saved.");
+    }
   }
 
   /**
@@ -463,47 +480,50 @@ class PomodoroClock extends Component {
 
           <div>
             <button id="start_stop" className="btn btn-light" onClick={this.startStop}>Start/Pause</button>
-            <button id="reset" className="btn btn-light" onClick={this.reset}>Reset Timer</button>
+            <button id="reset" className="btn btn-light" onClick={this.restart}>Restart</button>
           </div>
         </div>
 
-        <div className="btn-set session-length">
+        <div className="btn-set reset-btns">
+          <div>
+            <button id="reset" className="btn btn-light btn-sm" onClick={this.saveTimer}>Save Timer</button>
+            <button id="reset" className="btn btn-light btn-sm" onClick={this.loadTimer}>Load Timer</button>
+            <button id="reset" className="btn btn-light btn-sm" onClick={this.reset}>Reset To Default</button>
+          </div>
+        </div>
+
+        <div className="btn-set space-between session-length">
           <div id="session-label" className="label">Session Length</div>
-          <div id="session-length" className="time">{this.state.sessionLength}</div>
           <div>
-            <button id="session-decrement" className="btn btn-light fixed-width" onClick={this.decrementSession}>-</button>
-            <button id="session-increment" className="btn btn-light fixed-width" onClick={this.incrementSession}>+</button>
+            <input className="form-control text-center" type="text" name="sessionLength" value={this.state.sessionLength} onChange={this.handleInputChange} onBlur={this.handleInputBlur} onKeyDown={this.handleInputEnter} />
+            <div>minutes</div>
           </div>
+
         </div>
 
-        <div className="btn-set break-length">
+        <div className="btn-set space-between break-length">
           <div id="break-label" className="label">Break Length</div>
-          <div id="break-length" className="time">{this.state.breakLength}</div>
           <div>
-            <button id="break-decrement" className="btn btn-light fixed-width" onClick={this.decrementBreak}>-</button>
-            <button id="break-increment" className="btn btn-light fixed-width" onClick={this.incrementBreak}>+</button>
+            <input className="form-control text-center" type="text" name="breakLength" value={this.state.breakLength} onChange={this.handleInputChange} onBlur={this.handleInputBlur} onKeyDown={this.handleInputEnter} />
+            <div>minutes</div>
           </div>
+
         </div>
 
-        <div className="btn-set long-break-length">
+        <div className="btn-set space-between long-break-length">
           <div id="long-break-label" className="label">Long Break Length</div>
-          <div id="long-break-length" className="time">{this.state.longBreakLength}</div>
           <div>
-            <button id="long-break-decrement" className="btn btn-light fixed-width" onClick={this.decrementLongBreak}>-</button>
-            <button id="long-break-increment" className="btn btn-light fixed-width" onClick={this.incrementLongBreak}>+</button>
+            <input className="form-control text-center" type="text" name="longBreakLength" value={this.state.longBreakLength} onChange={this.handleInputChange} onBlur={this.handleInputBlur} onKeyDown={this.handleInputEnter} />
+            <div>minutes</div>
           </div>
+
         </div>
 
-        <div className="btn-set cycle-count">
+        <div className="btn-set space-between cycle-count">
           <div id="cycle-label" className="label">Long break after</div>
-          <div id="cycle-count" className="time">
-            {this.state.sessionCycle}
-            {' '}
-            sessions
-          </div>
-          <div>
-            <button id="cycle-decrement" className="btn btn-light fixed-width" onClick={this.decrementCycle}>-</button>
-            <button id="cycle-increment" className="btn btn-light fixed-width" onClick={this.incrementCycle}>+</button>
+          <div id="cycle-count" className="">
+            <input className="form-control text-center" type="text" name="sessionCycle" value={this.state.sessionCycle} onChange={this.handleInputChange} onBlur={this.handleInputBlur} onKeyDown={this.handleInputEnter} />
+            <div>sessions</div>
           </div>
         </div>
 
@@ -520,13 +540,14 @@ class PomodoroClock extends Component {
               Notification&nbsp;
               <input type="checkbox" name="notifySetting" checked={this.state.notifySetting} onChange={this.handleNotifySettingChange} />
             </label>
-            <div>
-              <small>*Notifications will not work on iOS</small>
-            </div>
           </div>
 
           <div id="save-settings">
             <button className="btn btn-light" onClick={this.saveSettings}>Save Settings</button>
+          </div>
+
+          <div id="settings-note">
+              <small>*Notifications will not work on iOS</small>
           </div>
         </div>
       </div>

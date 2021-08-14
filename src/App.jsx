@@ -46,14 +46,17 @@ class App extends Component {
               <p id="authorize_desc" style={displayNone}>
                 Sign in with Google to log your work on Google Calendar
               </p>
+              <p id="authorize_failed" style={displayNone}>
+                Failed to connect to Google Calendar.
+              </p>
               {/* Add buttons to initiate auth sequence and sign out */}
               <button id="authorize_button" className="btn btn-light" style={displayNone}>Sign In</button>
               <button id="signout_button" className="btn btn-secondary" style={displayNone}>Sign Out</button>
             </div>
 
             <div className="section">
-              <p>
-                When a session is completed, a log will be added automatically to your calendar.
+              <p id="authorize_success" style={displayNone}>
+                A log will be automatically added to your calendar when you complete a session.
               </p>
             </div>
 

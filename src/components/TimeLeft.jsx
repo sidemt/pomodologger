@@ -29,9 +29,9 @@ class TimeLeft extends Component {
    * @param {Number} s
    */
   hhmmss(h, m, s) {
-    var hh = '';
+    let hh = '';
     if (h > 0) {
-      hh = `${h}:`
+      hh = `${h}:`;
     }
     const m0 = (`00${m}`).slice(-2);
     const s0 = (`00${s}`).slice(-2);
@@ -58,7 +58,6 @@ class TimeLeft extends Component {
   displayTimeInTitle(timeLeft, timerLabel) {
     document.title = `${this.calcTimeLeft(timeLeft)} [${timerLabel}] - Pomodologger`;
   }
-
 
   render() {
     const { timeLeft } = this.props;
