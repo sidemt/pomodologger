@@ -37,6 +37,10 @@ export function initClient() {
     authorizeButton.onclick = handleAuthClick;
     signoutButton.onclick = handleSignoutClick;
     createButton.onclick = handleCreateClick;
+  }).catch((err) => {
+    console.error("Failed to sign in:", err);
+    const authorizeFailed = document.getElementById('authorize_failed');
+    authorizeFailed.style.display = 'inline';
   });
 }
 
@@ -49,12 +53,14 @@ export function updateSigninStatus(isSignedIn) {
   const authorizeButton = document.getElementById('authorize_button');
   const signoutButton = document.getElementById('signout_button');
   const signedInOnly = document.getElementById('signed-in-only');
+  const authorizeSuccess = document.getElementById('authorize_success');
 
   if (isSignedIn) {
     authorizeDesc.style.display = 'none';
     authorizeButton.style.display = 'none';
     signoutButton.style.display = 'inline';
     signedInOnly.style.display = 'block';
+    authorizeSuccess.style.display = 'block';
     // Get calendar list
     clearOption();
     getCalendarList();
@@ -63,6 +69,7 @@ export function updateSigninStatus(isSignedIn) {
     authorizeButton.style.display = 'inline';
     signoutButton.style.display = 'none';
     signedInOnly.style.display = 'none';
+    authorizeSuccess.style.display = 'none';
   }
 }
 
