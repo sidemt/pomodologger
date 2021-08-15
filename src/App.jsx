@@ -10,10 +10,19 @@ import * as Calendar from './features/calendar/Calendar';
 class App extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      eventName: 'Pomodoro',
+      eventDetail: ''
+    };
+    this.handleInputChange = this.handleInputChange.bind(this);
   }
 
   componentDidMount() {
     Calendar.handleClientLoad();
+  }
+
+  handleInputChange(event) {
+    this.setState({ [event.target.name]: event.target.value });
   }
 
   render(){
@@ -32,7 +41,10 @@ class App extends Component {
           <h1>Pomodologger</h1>
           <p>Pomodoro timer with Google Calendar log</p>
 
-          <PomodoroClock />
+          <PomodoroClock
+            eventName={this.state.eventName}
+            eventDetail={this.state.eventDetail}
+          />
 
           <div className="group logs">
             <p><strong>Logs</strong></p>
@@ -62,18 +74,22 @@ class App extends Component {
 
             <div id="signed-in-only" style={displayNone}>
               <div className="section">
-                <p><strong>Select a calendar.</strong></p>
+                <p><strong>Select a calendar</strong></p>
                 <select id="calendar-select" className="custom-select" />
               </div>
 
               <div className="section">
                 <p><strong>What are you working on?</strong></p>
-                <EventForm />
+                <EventForm
+                  eventName={this.state.eventName}
+                  eventDetail={this.state.eventDetail}
+                  handleInputChange={this.handleInputChange}
+                />
               </div>
 
               <div className="section">
                 <p>
-                  You can manually add a log by clicking the button below.
+                  You can try adding a log by clicking the button below.
                 </p>
                 <button id="create_button" className="btn btn-light">Add a Log Now</button>
               </div>

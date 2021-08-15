@@ -292,7 +292,7 @@ class PomodoroClock extends Component {
       const calendarId = document.getElementById('calendar-select').value;
 
       // Log event
-      Calendar.createEvent(this.state.sessionLength, name, desc, calendarId);
+      Calendar.createEvent(this.state.sessionLength, this.props.eventName, this.props.eventDetail, calendarId);
 
       // Increase sessions count
       this.setState((state) => ({
