@@ -23,7 +23,7 @@ const BREAK = 'Break';
 const SESSION = 'Session';
 const LONG_BREAK = 'Long Break';
 
-const MINUTE = 60;
+const MINUTE = 10;
 
 const defaultValues = {
   timerLabel: SESSION,
@@ -236,21 +236,6 @@ class PomodoroClock extends Component {
    * Update current timer when focus is moved out of a input field
    */
   handleInputBlur(event) {
-    const inputValue = event.target.value;
-    const inputName = event.target.name;
-    const parsedValue =  parseInt(inputValue, 10);
-    if (parsedValue > 0 && parsedValue <= 120) {
-      this.setState({[inputName]: parsedValue});
-    } else if (parsedValue <= 0) {
-      // Change 0 value to 1 so that the timer works properly
-      this.setState({[inputName]: 1});
-    } else if (parsedValue > 120) {
-      this.setState({[inputName]: 120});
-    } else {
-      // Change 0 value to 1 so that the timer works properly
-      this.setState({[inputName]: 1});
-    }
-
     // Update timer
     switch(event.target.name) {
       case "sessionLength":
@@ -406,8 +391,6 @@ class PomodoroClock extends Component {
       this.setState((state) => ({
         timeLeft: state.longBreakLength * MINUTE,
       }));
-    } else {
-
     }
   }
 
