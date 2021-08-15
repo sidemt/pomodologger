@@ -41,11 +41,11 @@ const defaultValues = {
 class PomodoroClock extends Component {
   constructor(props) {
     super(props);
+    // sessionLength is stored in the parent component "App"
     this.state = {
       timerLabel: SESSION,
       timeLeft: 1500,
       breakLength: 5,
-      sessionLength: 25,
       completedCount: 0,
       sessionCycle: 4,
       longBreakLength: 15,
@@ -82,12 +82,13 @@ class PomodoroClock extends Component {
     this.setState({
       timeLeft: parseInt(localStorage.sessionLength, 10) * MINUTE || defaultValues.timeLeft,
       breakLength: parseInt(localStorage.breakLength, 10) || defaultValues.breakLength,
-      sessionLength: parseInt(localStorage.sessionLength, 10) || defaultValues.sessionLength,
       sessionCycle: parseInt(localStorage.sessionCycle, 10) || defaultValues.sessionCycle,
       longBreakLength: parseInt(localStorage.longBreakLength, 10) || defaultValues.longBreakLength,
       soundSetting: parseBool(localStorage.soundSetting, defaultValues.soundSetting),
       notifySetting: parseBool(localStorage.notifySetting, defaultValues.notifySetting)
     });
+    const sessionLength = parseInt(localStorage.sessionLength, 10) || defaultValues.sessionLength;
+    this.props.onSessionLengthChange(sessionLength);
 
     // Connection to audio elements
     // Audio elements
@@ -161,7 +162,7 @@ class PomodoroClock extends Component {
     // Reset timer
     this.setState({
       timerLabel: SESSION,
-      timeLeft: this.state.sessionLength * MINUTE,
+      timeLeft: this.props.sessionLength * MINUTE,
       completedCount: 0,
       isRunning: false,
     });
@@ -177,12 +178,13 @@ class PomodoroClock extends Component {
       timerLabel: SESSION,
       timeLeft: parseInt(localStorage.sessionLength, 10) * MINUTE || defaultValues.timeLeft,
       breakLength: parseInt(localStorage.breakLength, 10) || defaultValues.breakLength,
-      sessionLength: parseInt(localStorage.sessionLength, 10) || defaultValues.sessionLength,
       completedCount: 0,
       sessionCycle: parseInt(localStorage.sessionCycle, 10) || defaultValues.sessionCycle,
       longBreakLength: parseInt(localStorage.longBreakLength, 10) || defaultValues.longBreakLength,
       isRunning: false,
     });
+    const sessionLength = parseInt(localStorage.sessionLength, 10) || defaultValues.sessionLength;
+    this.props.onSessionLengthChange(sessionLength);
     this.resetTimerState();
   }
 
@@ -201,6 +203,7 @@ class PomodoroClock extends Component {
       longBreakLength: defaultValues.longBreakLength,
       isRunning: false,
     });
+    this.props.onSessionLengthChange(defaultValues.sessionLength);
     this.resetTimerState();
   }
 
@@ -226,14 +229,19 @@ class PomodoroClock extends Component {
     const inputValue = event.target.value;
     const inputName = event.target.name;
     const parsedValue =  parseInt(inputValue, 10);
+    let valueToUse = 0;
     if (parsedValue >= 0 && parsedValue <= 120) {
-      this.setState({[inputName]: parsedValue});
-    } else if (parsedValue < 0) {
-      this.setState({[inputName]: 0});
+      valueToUse = parsedValue;
     } else if (parsedValue > 120) {
-      this.setState({[inputName]: 120});
+      valueToUse = 120;
     } else {
-      this.setState({[inputName]: 0});
+      valueToUse = 0;
+    }
+    if (inputName === "sessionLength") {
+      // sessionLength is stored in the parent component "App"
+      this.props.onSessionLengthChange(valueToUse);
+    } else {
+      this.setState({[inputName]: valueToUse});
     }
   }
 
@@ -287,12 +295,7 @@ class PomodoroClock extends Component {
     if (this.state.timerLabel === SESSION) {
       // When a session ends
       // Insert an event to the calendar
-      const name = document.getElementById('current-event-name').innerText;
-      const desc = document.getElementById('current-event-desc').innerText;
-      const calendarId = document.getElementById('calendar-select').value;
-
-      // Log event
-      Calendar.createEvent(this.state.sessionLength, name, desc, calendarId);
+      Calendar.createEvent(this.props.sessionLength, this.props.eventName, this.props.eventDetail, this.props.calendarId);
 
       // Increase sessions count
       this.setState((state) => ({
@@ -344,7 +347,7 @@ class PomodoroClock extends Component {
       }
       this.setState({
         timerLabel: SESSION,
-        timeLeft: this.state.sessionLength * MINUTE,
+        timeLeft: this.props.sessionLength * MINUTE,
       });
       // Change the background color
       document.getElementById('body').style.backgroundColor = 'var(--main-red)';
@@ -354,7 +357,7 @@ class PomodoroClock extends Component {
       this.notify(this.state.notifySetting,
         `Start working! ${this.state.completedCount}/${this.state.sessionCycle}`,
         '',
-        (this.state.sessionLength * MINUTE * 1000 - 5000));
+        (this.props.sessionLength * MINUTE * 1000 - 5000));
       // Play the sound
       this.playSound(this.state.soundSetting);
     }
@@ -391,7 +394,7 @@ class PomodoroClock extends Component {
   updateTimeLeft(label) {
     if (label === SESSION && this.state.timerLabel === SESSION) {
       this.setState((state) => ({
-        timeLeft: state.sessionLength * MINUTE,
+        timeLeft: this.props.sessionLength * MINUTE,
       }));
     } else if (label === BREAK && this.state.timerLabel === BREAK) {
       this.setState((state) => ({
@@ -435,7 +438,7 @@ class PomodoroClock extends Component {
     if (window.confirm("Current timer settings will be saved in your browser's local storage.")) {
       // Save current settings to localStorage
       localStorage.breakLength = this.state.breakLength;
-      localStorage.sessionLength = this.state.sessionLength;
+      localStorage.sessionLength = this.props.sessionLength;
       localStorage.sessionCycle = this.state.sessionCycle;
       localStorage.longBreakLength = this.state.longBreakLength;
       alert("Timer settings were saved.");
@@ -497,7 +500,7 @@ class PomodoroClock extends Component {
         <div className="btn-set space-between session-length">
           <div id="session-label" className="label">Session Length</div>
           <div>
-            <input className="form-control text-center" type="text" name="sessionLength" value={this.state.sessionLength} onChange={this.handleInputChange} onBlur={this.handleInputBlur} onKeyDown={this.handleInputEnter} />
+            <input className="form-control text-center" type="text" name="sessionLength" value={this.props.sessionLength} onChange={this.handleInputChange} onBlur={this.handleInputBlur} onKeyDown={this.handleInputEnter} />
             <div>minutes</div>
           </div>
 
