@@ -11,10 +11,14 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      sessionLength: 25,
       eventName: 'Pomodoro',
-      eventDetail: ''
+      eventDetail: '',
+      calendarId: ''
     };
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleSessionLengthChange = this.handleSessionLengthChange.bind(this);
+    this.handleCreateClick = this.handleCreateClick.bind(this);
   }
 
   componentDidMount() {
@@ -23,6 +27,17 @@ class App extends Component {
 
   handleInputChange(event) {
     this.setState({ [event.target.name]: event.target.value });
+  }
+
+  handleSessionLengthChange(value) {
+    this.setState({ sessionLength: value });
+  }
+
+  handleCreateClick(event) {
+    Calendar.createEvent(this.state.sessionLength,
+      this.state.eventName,
+      this.state.eventDetail,
+      this.state.calendarId);
   }
 
   render(){
@@ -42,8 +57,11 @@ class App extends Component {
           <p>Pomodoro timer with Google Calendar log</p>
 
           <PomodoroClock
+            sessionLength={this.state.sessionLength}
+            onSessionLengthChange={this.handleSessionLengthChange}
             eventName={this.state.eventName}
             eventDetail={this.state.eventDetail}
+            calendarId={this.state.calendarId}
           />
 
           <div className="group logs">
@@ -75,7 +93,7 @@ class App extends Component {
             <div id="signed-in-only" style={displayNone}>
               <div className="section">
                 <p><strong>Select a calendar</strong></p>
-                <select id="calendar-select" className="custom-select" />
+                <select id="calendar-select" className="custom-select" name="calendarId" value={this.state.calendarId} onChange={this.handleInputChange} />
               </div>
 
               <div className="section">

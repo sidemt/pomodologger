@@ -36,7 +36,7 @@ export function initClient() {
     updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
     authorizeButton.onclick = handleAuthClick;
     signoutButton.onclick = handleSignoutClick;
-    createButton.onclick = handleCreateClick;
+    // createButton.onclick = handleCreateClick;
   }).catch((err) => {
     console.error("Failed to sign in:", err);
     const authorizeFailed = document.getElementById('authorize_failed');
@@ -87,13 +87,13 @@ export function handleSignoutClick(event) {
   gapi.auth2.getAuthInstance().signOut();
 }
 
-export function handleCreateClick(event) {
-  const duration = parseInt(document.getElementById('session-length').innerText, 10);
-  const name = document.getElementById('current-event-name').innerText;
-  const desc = document.getElementById('current-event-desc').innerText;
-  const calendarId = document.getElementById('calendar-select').value;
-  createEvent(duration, name, desc, calendarId);
-}
+// export function handleCreateClick(event) {
+//   const duration = parseInt(document.getElementById('session-length').innerText, 10);
+//   const name = document.getElementById('current-event-name').innerText;
+//   const desc = document.getElementById('current-event-desc').innerText;
+//   const calendarId = document.getElementById('calendar-select').value;
+//   createEvent(duration, name, desc, calendarId);
+// }
 
 /**
  * Append a li element into the ol element
