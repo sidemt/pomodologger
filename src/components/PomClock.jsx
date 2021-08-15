@@ -30,7 +30,7 @@ const defaultValues = {
   timeLeft: 1500,
   breakLength: 5,
   sessionLength: 25,
-  currentCount: 1,
+  completedCount: 0,
   sessionCycle: 4,
   longBreakLength: 15,
   isRunning: false,
@@ -46,7 +46,7 @@ class PomodoroClock extends Component {
       timeLeft: 1500,
       breakLength: 5,
       sessionLength: 25,
-      currentCount: 1,
+      completedCount: 0,
       sessionCycle: 4,
       longBreakLength: 15,
       isRunning: false,
@@ -157,7 +157,7 @@ class PomodoroClock extends Component {
     this.setState({
       timerLabel: SESSION,
       timeLeft: this.state.sessionLength * MINUTE,
-      currentCount: 1,
+      completedCount: 0,
       isRunning: false,
     });
     this.resetTimerState();
@@ -173,7 +173,7 @@ class PomodoroClock extends Component {
       timeLeft: parseInt(localStorage.sessionLength, 10) * MINUTE || defaultValues.timeLeft,
       breakLength: parseInt(localStorage.breakLength, 10) || defaultValues.breakLength,
       sessionLength: parseInt(localStorage.sessionLength, 10) || defaultValues.sessionLength,
-      currentCount: 1,
+      completedCount: 0,
       sessionCycle: parseInt(localStorage.sessionCycle, 10) || defaultValues.sessionCycle,
       longBreakLength: parseInt(localStorage.longBreakLength, 10) || defaultValues.longBreakLength,
       isRunning: false,
@@ -191,7 +191,7 @@ class PomodoroClock extends Component {
       timeLeft: defaultValues.timeLeft,
       breakLength: defaultValues.breakLength,
       sessionLength: defaultValues.sessionLength,
-      currentCount: 1,
+      completedCount: 0,
       sessionCycle: defaultValues.sessionCycle,
       longBreakLength: defaultValues.longBreakLength,
       isRunning: false,
@@ -304,8 +304,13 @@ class PomodoroClock extends Component {
       // Log event
       Calendar.createEvent(this.state.sessionLength, name, desc, calendarId);
 
+      // Increase sessions count
+      this.setState((state) => ({
+        completedCount: state.completedCount + 1,
+      }));
+
       // Check which break to start
-      if (this.state.currentCount < this.state.sessionCycle) {
+      if (this.state.completedCount < this.state.sessionCycle) {
         // Start a short break
         this.setState({
           timerLabel: BREAK,
@@ -317,12 +322,8 @@ class PomodoroClock extends Component {
         this.beep = this.SOUND_BREAK;
         // Send a short break start (= session end) notification
         this.notify(this.state.notifySetting,
-          `Session Complete! ${this.state.currentCount}/${this.state.sessionCycle}`,
+          `Session Complete! ${this.state.completedCount}/${this.state.sessionCycle}`,
           'Take a short break.');
-        // Increase sessions count
-        this.setState((state) => ({
-          currentCount: state.currentCount + 1,
-        }));
       } else {
         // Start a long break
         this.setState({
@@ -337,16 +338,18 @@ class PomodoroClock extends Component {
         this.notify(this.state.notifySetting,
           `${this.state.sessionCycle} Sessions Complete! Good Work!`,
           'Take a long break.');
-        // Reset sessions count
-        this.setState((state) => ({
-          currentCount: 1,
-        }));
       }
       // Play a break start (= session end) sound
       this.playSound(this.state.soundSetting);
     } else {
       // When a break or long break ends
       // Start a session
+      if (this.state.completedCount >= this.state.sessionCycle) {
+        // Start a new cycle
+        this.setState((state) => ({
+          completedCount: 0,
+        }));
+      }
       this.setState({
         timerLabel: SESSION,
         timeLeft: this.state.sessionLength * MINUTE,
@@ -356,7 +359,7 @@ class PomodoroClock extends Component {
       // Change the sound to be played
       this.beep = this.SOUND_SESSION;
       // Send a session start (= break end) notification
-      this.notify(this.state.notifySetting, `Start working! ${this.state.currentCount}/${this.state.sessionCycle}`);
+      this.notify(this.state.notifySetting, `Start working! ${this.state.completedCount}/${this.state.sessionCycle}`);
       // Play the sound
       this.playSound(this.state.soundSetting);
     }
@@ -473,12 +476,12 @@ class PomodoroClock extends Component {
                 timeLeft={this.state.timeLeft}
                 timerLabel={this.state.timerLabel}
                 sessionCycle={this.state.sessionCycle}
-                currentCount={this.state.currentCount}
+                completedCount={this.state.completedCount}
               />
             <div>
               Completed Sessions:
               {' '}
-              {this.state.currentCount - 1}
+              {this.state.completedCount}
               /
               {this.state.sessionCycle}
             </div>

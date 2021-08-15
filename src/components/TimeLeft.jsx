@@ -13,13 +13,13 @@ class TimeLeft extends Component {
   }
 
   componentDidMount() {
-    const { timeLeft, timerLabel, sessionCycle, currentCount } = this.props;
-    this.displayTimeInTitle(timeLeft, timerLabel, sessionCycle, currentCount);
+    const { timeLeft, timerLabel, sessionCycle, completedCount } = this.props;
+    this.displayTimeInTitle(timeLeft, timerLabel, sessionCycle, completedCount);
   }
 
   componentDidUpdate() {
-    const { timeLeft, timerLabel, sessionCycle, currentCount } = this.props;
-    this.displayTimeInTitle(timeLeft, timerLabel, sessionCycle, currentCount);
+    const { timeLeft, timerLabel, sessionCycle, completedCount } = this.props;
+    this.displayTimeInTitle(timeLeft, timerLabel, sessionCycle, completedCount);
   }
 
   /**
@@ -55,8 +55,8 @@ class TimeLeft extends Component {
    * @param {Number} timeLeft
    * @param {String} timerLabel
    */
-  displayTimeInTitle(timeLeft, timerLabel, sessionCycle, currentCount) {
-    let progress = `${currentCount - 1}/${sessionCycle}`;
+  displayTimeInTitle(timeLeft, timerLabel, sessionCycle, completedCount) {
+    let progress = `${completedCount}/${sessionCycle}`;
     document.title = `${this.calcTimeLeft(timeLeft)}[${timerLabel}]${progress} | Pomodologger`;
   }
 
