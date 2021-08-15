@@ -21,7 +21,6 @@ export function handleClientLoad() {
 export function initClient() {
   const authorizeButton = document.getElementById('authorize_button');
   const signoutButton = document.getElementById('signout_button');
-  const createButton = document.getElementById('create_button');
 
   gapi.client.init({
     apiKey: process.env.REACT_APP_API_KEY,
@@ -36,7 +35,6 @@ export function initClient() {
     updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
     authorizeButton.onclick = handleAuthClick;
     signoutButton.onclick = handleSignoutClick;
-    // createButton.onclick = handleCreateClick;
   }).catch((err) => {
     console.error("Failed to sign in:", err);
     const authorizeFailed = document.getElementById('authorize_failed');
@@ -87,14 +85,6 @@ export function handleSignoutClick(event) {
   gapi.auth2.getAuthInstance().signOut();
 }
 
-// export function handleCreateClick(event) {
-//   const duration = parseInt(document.getElementById('session-length').innerText, 10);
-//   const name = document.getElementById('current-event-name').innerText;
-//   const desc = document.getElementById('current-event-desc').innerText;
-//   const calendarId = document.getElementById('calendar-select').value;
-//   createEvent(duration, name, desc, calendarId);
-// }
-
 /**
  * Append a li element into the ol element
  * Used to display the results of the API call.
@@ -131,6 +121,10 @@ export function appendOption(value, summary, primary) {
     var newItem = `<option value="${value}">${summary}</option>`;
   }
   select.insertAdjacentHTML('beforeEnd', newItem);
+  if (primary) {
+    // Dispatch onChange event to update React component's state to set initial selection value
+    select.dispatchEvent(new Event('change', {bubbles: true}));
+  }
 }
 
 /**

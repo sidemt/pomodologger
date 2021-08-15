@@ -109,7 +109,7 @@ class App extends Component {
                 <p>
                   You can try adding a log by clicking the button below.
                 </p>
-                <button id="create_button" className="btn btn-light">Add a Log Now</button>
+                <button id="create_button" className="btn btn-light" onClick={this.handleCreateClick}>Add a Log Now</button>
               </div>
             </div>
           </div>
