@@ -468,7 +468,13 @@ class PomodoroClock extends Component {
         <div className="btn-set timer">
           <div>
             <div id="timer-label" className="label">{this.state.timerLabel}</div>
-            <TimeLeft timeLeft={this.state.timeLeft} timerLabel={this.state.timerLabel} />
+              <
+                TimeLeft
+                timeLeft={this.state.timeLeft}
+                timerLabel={this.state.timerLabel}
+                sessionCycle={this.state.sessionCycle}
+                currentCount={this.state.currentCount}
+              />
             <div>
               Completed Sessions:
               {' '}
