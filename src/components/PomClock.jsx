@@ -23,7 +23,7 @@ const BREAK = 'Break';
 const SESSION = 'Session';
 const LONG_BREAK = 'Long Break';
 
-const MINUTE = 10;
+const MINUTE = 60;
 
 const defaultValues = {
   timerLabel: SESSION,
@@ -122,17 +122,22 @@ class PomodoroClock extends Component {
 
   /**
    * Checks the notification setting and send a notification
+   * Note: Make sure to close the notification automatically before the next one is sent.
+   * Otherwise the next notification will not go off. This can be done by setting timeout value.
    * @param {Boolean} notifySetting
    * @param {String} message
    * @param {String} body
+   * @param {Integer} timeout in milliseconds
    */
-  notify(notifySetting, message, body = '') {
+  notify(notifySetting, message, body = '', timeout = 50000) {
     console.log("notify");
     // Send a notification if notify settings is ON (true)
     if (notifySetting) {
       Push.create(message, {
+        link: "/pomodologger", // This should match the relative path of the app
         body: body,
-        timeout: 50000,
+        requireInteraction: true, // Make user close a notification manually
+        timeout: timeout, // Close automatically even if user did not interact
         onClick: function () {
             this.close();
         }
@@ -308,7 +313,8 @@ class PomodoroClock extends Component {
         // Send a short break start (= session end) notification
         this.notify(this.state.notifySetting,
           `Session Complete! ${this.state.completedCount}/${this.state.sessionCycle}`,
-          'Take a short break.');
+          'Take a short break.',
+          (this.state.breakLength * MINUTE * 1000 - 5000));
       } else {
         // Start a long break
         this.setState({
@@ -322,7 +328,8 @@ class PomodoroClock extends Component {
         // Send a long break start (= session end) notification
         this.notify(this.state.notifySetting,
           `${this.state.sessionCycle} Sessions Complete! Good Work!`,
-          'Take a long break.');
+          'Take a long break.',
+          (this.state.longBreakLength * MINUTE * 1000 - 5000));
       }
       // Play a break start (= session end) sound
       this.playSound(this.state.soundSetting);
@@ -344,7 +351,10 @@ class PomodoroClock extends Component {
       // Change the sound to be played
       this.beep = this.SOUND_SESSION;
       // Send a session start (= break end) notification
-      this.notify(this.state.notifySetting, `Start working! ${this.state.completedCount}/${this.state.sessionCycle}`);
+      this.notify(this.state.notifySetting,
+        `Start working! ${this.state.completedCount}/${this.state.sessionCycle}`,
+        '',
+        (this.state.sessionLength * MINUTE * 1000 - 5000));
       // Play the sound
       this.playSound(this.state.soundSetting);
     }
