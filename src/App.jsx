@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
+import { withTranslation } from 'react-i18next';
 import './App.css';
 
+import LangSelection from './components/LangSelection';
 import PomodoroClock from './components/PomClock';
-
 import EventForm from './components/EventForm';
-
 import * as Calendar from './features/calendar/Calendar';
 
 class App extends Component {
@@ -16,6 +16,7 @@ class App extends Component {
       eventDetail: '',
       calendarId: ''
     };
+    this.changeLanguage = this.changeLanguage.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleSessionLengthChange = this.handleSessionLengthChange.bind(this);
     this.handleCreateClick = this.handleCreateClick.bind(this);
@@ -23,6 +24,17 @@ class App extends Component {
 
   componentDidMount() {
     Calendar.handleClientLoad();
+  }
+
+  changeLanguage(lang) {
+    const {i18n} = this.props;
+    switch (lang) {
+      case 'ja':
+        i18n.changeLanguage('ja');
+        break;
+      default: // 'en'
+        i18n.changeLanguage('en');
+    }
   }
 
   handleInputChange(event) {
@@ -41,6 +53,7 @@ class App extends Component {
   }
 
   render(){
+    const {t, i18n} = this.props;
     const displayNone = {
       display: 'none',
     };
@@ -48,11 +61,9 @@ class App extends Component {
     return (
       <>
         <div className="container">
-          <div className="lang-selection">
-            English |
-            {' '}
-            <a href="ja/index.html">Japanese</a>
-          </div>
+        <h1>{t('Welcome to React')}</h1>
+          <LangSelection lang={i18n.language} changeLanguage={this.changeLanguage} />
+
           <h1>Pomodologger</h1>
           <p>Pomodoro timer with Google Calendar log</p>
 
@@ -142,4 +153,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default withTranslation()(App);
