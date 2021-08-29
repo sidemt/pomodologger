@@ -424,12 +424,12 @@ class PomodoroClock extends Component {
     if (event.target.checked && !Push.Permission.has()) {
       console.log("Request permission");
       Push.Permission.request(() => { // onGranted
-        this.notify(true, `${i18n.t('notification_enabled')}`);
+        this.notify(true, `${i18n.t('notification_enabled')}`, `${i18n.t('notification_enabled_desc')}`);
       }, () => { // onDenied
         alert(`${i18n.t('request_permission')}`);
       });
     } else if (event.target.checked && Push.Permission.has()) {
-      this.notify(true, `${i18n.t('notification_enabled')}`);
+      this.notify(true, `${i18n.t('notification_enabled')}`, `${i18n.t('notification_enabled_desc')}`);
     }
   }
 

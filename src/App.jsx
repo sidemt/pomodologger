@@ -90,8 +90,13 @@ class App extends Component {
                 {t('failed_to_connect_to_google')}
               </p>
               {/* Add buttons to initiate auth sequence and sign out */}
-              <button id="authorize_button" className="btn btn-light" style={displayNone}>{t('sign_in')}</button>
-              <button id="signout_button" className="btn btn-secondary" style={displayNone}>{t('sign_out')}</button>
+              <div
+                id="authorize_button"
+                className="g-signin2"
+                style={displayNone}
+                data-longtitle="true"
+                data-theme="dark">
+              </div>
             </div>
 
             <div className="section">
@@ -120,6 +125,10 @@ class App extends Component {
                   {t('try_adding_a_log')}
                 </p>
                 <button id="create_button" className="btn btn-light" onClick={this.handleCreateClick}>{t('add_a_log')}</button>
+              </div>
+
+              <div className="section">
+                <button id="signout_button" className="btn btn-secondary" style={displayNone}>{t('sign_out')}</button>
               </div>
             </div>
           </div>

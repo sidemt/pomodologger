@@ -66,7 +66,7 @@ export function updateSigninStatus(isSignedIn) {
     getCalendarList();
   } else {
     authorizeDesc.style.display = 'block';
-    authorizeButton.style.display = 'inline';
+    authorizeButton.style.display = 'inline-block';
     signoutButton.style.display = 'none';
     signedInOnly.style.display = 'none';
     authorizeSuccess.style.display = 'none';
