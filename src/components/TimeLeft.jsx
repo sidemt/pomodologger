@@ -57,7 +57,7 @@ class TimeLeft extends Component {
    */
   displayTimeInTitle(timeLeft, timerLabel, sessionCycle, completedCount) {
     let progress = `${completedCount}/${sessionCycle}`;
-    document.title = `${this.calcTimeLeft(timeLeft)}[${timerLabel}]${progress} | Pomodologger`;
+    document.title = `${this.calcTimeLeft(timeLeft)}-${timerLabel}-${progress} | Pomodologger`;
   }
 
   render() {

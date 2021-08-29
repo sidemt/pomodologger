@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { withTranslation } from 'react-i18next';
+import i18n from 'i18next';
 
 import TimeLeft from './TimeLeft';
 
@@ -19,9 +21,9 @@ import { parseBool } from '../features/helper/helper';
 let intervalId;
 
 // Break/Session labels
-const BREAK = 'Break';
-const SESSION = 'Session';
-const LONG_BREAK = 'Long Break';
+const BREAK = 'break';
+const SESSION = 'session';
+const LONG_BREAK = 'long_break';
 
 const MINUTE = 60;
 
@@ -315,8 +317,8 @@ class PomodoroClock extends Component {
         this.beep = this.SOUND_BREAK;
         // Send a short break start (= session end) notification
         this.notify(this.state.notifySetting,
-          `Session Complete! ${this.state.completedCount}/${this.state.sessionCycle}`,
-          'Take a short break.',
+          `${i18n.t('session_complete')} ${this.state.completedCount}/${this.state.sessionCycle}`,
+          `${i18n.t('take_short_break')}`,
           (this.state.breakLength * MINUTE * 1000 - 5000));
       } else {
         // Start a long break
@@ -330,8 +332,8 @@ class PomodoroClock extends Component {
         this.beep = this.SOUND_LONG_BREAK;
         // Send a long break start (= session end) notification
         this.notify(this.state.notifySetting,
-          `${this.state.sessionCycle} Sessions Complete! Good Work!`,
-          'Take a long break.',
+          `${this.state.sessionCycle} ${i18n.t('sessions_complete')}`,
+          `${i18n.t('take_long_break')}`,
           (this.state.longBreakLength * MINUTE * 1000 - 5000));
       }
       // Play a break start (= session end) sound
@@ -355,7 +357,7 @@ class PomodoroClock extends Component {
       this.beep = this.SOUND_SESSION;
       // Send a session start (= break end) notification
       this.notify(this.state.notifySetting,
-        `Start working! ${this.state.completedCount}/${this.state.sessionCycle}`,
+        `${i18n.t('start_working')} ${this.state.completedCount}/${this.state.sessionCycle}`,
         '',
         (this.props.sessionLength * MINUTE * 1000 - 5000));
       // Play the sound
@@ -422,12 +424,12 @@ class PomodoroClock extends Component {
     if (event.target.checked && !Push.Permission.has()) {
       console.log("Request permission");
       Push.Permission.request(() => { // onGranted
-        this.notify(true, "You will receive a notification when a session/break is completed.");
+        this.notify(true, `${i18n.t('notification_enabled')}`);
       }, () => { // onDenied
-        alert("Please allow notifications in browser settings.");
+        alert(`${i18n.t('request_permission')}`);
       });
     } else if (event.target.checked && Push.Permission.has()) {
-      this.notify(true, "You will receive a notification when a session/break is completed.");
+      this.notify(true, `${i18n.t('notification_enabled')}`);
     }
   }
 
@@ -435,13 +437,13 @@ class PomodoroClock extends Component {
    * Saves timer settings
    */
   saveTimer() {
-    if (window.confirm("Current timer settings will be saved in your browser's local storage.")) {
+    if (window.confirm(`${i18n.t('save_timer_desc')}`)) {
       // Save current settings to localStorage
       localStorage.breakLength = this.state.breakLength;
       localStorage.sessionLength = this.props.sessionLength;
       localStorage.sessionCycle = this.state.sessionCycle;
       localStorage.longBreakLength = this.state.longBreakLength;
-      alert("Timer settings were saved.");
+      alert(`${i18n.t('timer_saved')}`);
     }
   }
 
@@ -449,12 +451,12 @@ class PomodoroClock extends Component {
    * Saves current settings
    */
   saveSettings() {
-    if (window.confirm("Current Sound & notification settings will be saved in your browser's local storage.")) {
+    if (window.confirm(`${i18n.t('save_settings_desc')}`)) {
       // Save current settings to localStorage
       localStorage.soundSetting = this.state.soundSetting;
       localStorage.notifySetting = this.state.notifySetting;
 
-      alert("Sound & notification settings were saved.");
+      alert(`${i18n.t('settings_saved')}`);
     }
   }
 
@@ -462,20 +464,21 @@ class PomodoroClock extends Component {
    * Render the pomodoro timer
    */
   render() {
+    const {t} = this.props;
     return (
       <div id="pomodoro-clock-inside">
         <div className="btn-set timer">
           <div>
-            <div id="timer-label" className="label">{this.state.timerLabel}</div>
+            <div id="timer-label" className="label">{t(this.state.timerLabel)}</div>
               <
                 TimeLeft
                 timeLeft={this.state.timeLeft}
-                timerLabel={this.state.timerLabel}
+                timerLabel={t(this.state.timerLabel) /* Display translated time label */ }
                 sessionCycle={this.state.sessionCycle}
                 completedCount={this.state.completedCount}
               />
             <div>
-              Completed Sessions:
+              {t('completed_sessions')}:
               {' '}
               {this.state.completedCount}
               /
@@ -484,75 +487,75 @@ class PomodoroClock extends Component {
           </div>
 
           <div>
-            <button id="start_stop" className="btn btn-light" onClick={this.startStop}>Start/Pause</button>
-            <button id="reset" className="btn btn-light" onClick={this.restart}>Restart</button>
+            <button id="start_stop" className="btn btn-light" onClick={this.startStop}>{t('start_pause')}</button>
+            <button id="reset" className="btn btn-light" onClick={this.restart}>{t('restart')}</button>
           </div>
         </div>
 
         <div className="btn-set reset-btns">
           <div>
-            <button id="reset" className="btn btn-light btn-sm" onClick={this.saveTimer}>Save Timer</button>
-            <button id="reset" className="btn btn-light btn-sm" onClick={this.loadTimer}>Load Timer</button>
-            <button id="reset" className="btn btn-light btn-sm" onClick={this.reset}>Reset To Default</button>
+            <button id="reset" className="btn btn-light btn-sm" onClick={this.saveTimer}>{t('save_timer')}</button>
+            <button id="reset" className="btn btn-light btn-sm" onClick={this.loadTimer}>{t('load_time')}</button>
+            <button id="reset" className="btn btn-light btn-sm" onClick={this.reset}>{t('reset_to_default')}</button>
           </div>
         </div>
 
         <div className="btn-set space-between session-length">
-          <div id="session-label" className="label">Session Length</div>
+          <div id="session-label" className="label">{t('session_length')}</div>
           <div>
             <input className="form-control text-center" type="text" name="sessionLength" value={this.props.sessionLength} onChange={this.handleInputChange} onBlur={this.handleInputBlur} onKeyDown={this.handleInputEnter} />
-            <div>minutes</div>
+            <div>{t('minutes')}</div>
           </div>
 
         </div>
 
         <div className="btn-set space-between break-length">
-          <div id="break-label" className="label">Break Length</div>
+          <div id="break-label" className="label">{t('break_length')}</div>
           <div>
             <input className="form-control text-center" type="text" name="breakLength" value={this.state.breakLength} onChange={this.handleInputChange} onBlur={this.handleInputBlur} onKeyDown={this.handleInputEnter} />
-            <div>minutes</div>
+            <div>{t('minutes')}</div>
           </div>
 
         </div>
 
         <div className="btn-set space-between long-break-length">
-          <div id="long-break-label" className="label">Long Break Length</div>
+          <div id="long-break-label" className="label">{t('long_break_length')}</div>
           <div>
             <input className="form-control text-center" type="text" name="longBreakLength" value={this.state.longBreakLength} onChange={this.handleInputChange} onBlur={this.handleInputBlur} onKeyDown={this.handleInputEnter} />
-            <div>minutes</div>
+            <div>{t('minutes')}</div>
           </div>
 
         </div>
 
         <div className="btn-set space-between cycle-count">
-          <div id="cycle-label" className="label">Long break after</div>
+          <div id="cycle-label" className="label">{t('long_break_after')}</div>
           <div id="cycle-count" className="">
             <input className="form-control text-center" type="text" name="sessionCycle" value={this.state.sessionCycle} onChange={this.handleInputChange} onBlur={this.handleInputBlur} onKeyDown={this.handleInputEnter} />
-            <div>sessions</div>
+            <div>{t('sessions')}</div>
           </div>
         </div>
 
         <div id="settings-group" className="group">
           <div id="sound-setting">
             <label>
-              Sound&nbsp;
+              {t('sound')}&nbsp;
               <input type="checkbox" name="soundSetting" checked={this.state.soundSetting} onChange={this.handleCheckboxChange} />
             </label>
           </div>
 
           <div id="notify-setting">
             <label>
-              Notification&nbsp;
+              {t('notification')}&nbsp;
               <input type="checkbox" name="notifySetting" checked={this.state.notifySetting} onChange={this.handleNotifySettingChange} />
             </label>
           </div>
 
           <div id="save-settings">
-            <button className="btn btn-light" onClick={this.saveSettings}>Save Settings</button>
+            <button className="btn btn-light" onClick={this.saveSettings}>{t('save_settings')}</button>
           </div>
 
           <div id="settings-note">
-              <small>*Notifications will not work on iOS</small>
+              <small>{t('notification_notice')}</small>
           </div>
         </div>
       </div>
@@ -560,4 +563,4 @@ class PomodoroClock extends Component {
   }
 }
 
-export default PomodoroClock;
+export default withTranslation()(PomodoroClock);

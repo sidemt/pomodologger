@@ -61,11 +61,10 @@ class App extends Component {
     return (
       <>
         <div className="container">
-        <h1>{t('Welcome to React')}</h1>
           <LangSelection lang={i18n.language} changeLanguage={this.changeLanguage} />
 
           <h1>Pomodologger</h1>
-          <p>Pomodoro timer with Google Calendar log</p>
+          <p>{t('pomodologger_desc')}</p>
 
           <PomodoroClock
             sessionLength={this.state.sessionLength}
@@ -76,8 +75,8 @@ class App extends Component {
           />
 
           <div className="group logs">
-            <p><strong>Logs</strong></p>
-            <p id="no-logs">No Pomodoro done yet</p>
+            <p><strong>{t('logs')}</strong></p>
+            <p id="no-logs">{t('no_logs')}</p>
 
             <ol id="event-list" className="number-list" />
           </div>
@@ -85,30 +84,30 @@ class App extends Component {
           <div className="group descriptions">
             <div className="section">
               <p id="authorize_desc" style={displayNone}>
-                Sign in with Google to log your work on Google Calendar
+                {t('sigin_in_desc')}
               </p>
               <p id="authorize_failed" style={displayNone}>
-                Failed to connect to Google Calendar.
+                {t('failed_to_connect_to_google')}
               </p>
               {/* Add buttons to initiate auth sequence and sign out */}
-              <button id="authorize_button" className="btn btn-light" style={displayNone}>Sign In</button>
-              <button id="signout_button" className="btn btn-secondary" style={displayNone}>Sign Out</button>
+              <button id="authorize_button" className="btn btn-light" style={displayNone}>{t('sign_in')}</button>
+              <button id="signout_button" className="btn btn-secondary" style={displayNone}>{t('sign_out')}</button>
             </div>
 
             <div className="section">
               <p id="authorize_success" style={displayNone}>
-                A log will be automatically added to your calendar when you complete a session.
+                {t('log_desc')}
               </p>
             </div>
 
             <div id="signed-in-only" style={displayNone}>
               <div className="section">
-                <p><strong>Select a calendar</strong></p>
+                <p><strong>{t('select_calendar')}</strong></p>
                 <select id="calendar-select" className="custom-select" name="calendarId" value={this.state.calendarId} onChange={this.handleInputChange} />
               </div>
 
               <div className="section">
-                <p><strong>What are you working on?</strong></p>
+                <p><strong>{t('what_are_you_working_on')}</strong></p>
                 <EventForm
                   eventName={this.state.eventName}
                   eventDetail={this.state.eventDetail}
@@ -118,16 +117,16 @@ class App extends Component {
 
               <div className="section">
                 <p>
-                  You can try adding a log by clicking the button below.
+                  {t('try_adding_a_log')}
                 </p>
-                <button id="create_button" className="btn btn-light" onClick={this.handleCreateClick}>Add a Log Now</button>
+                <button id="create_button" className="btn btn-light" onClick={this.handleCreateClick}>{t('add_a_log')}</button>
               </div>
             </div>
           </div>
 
           <div className="section">
             <small>
-              Sounds by:
+              {t('sounds_from')}:
               {' '}
               <a href="http://www.kurage-kosho.info" title="フリー効果音素材 くらげ工匠" target="_blank">フリー効果音素材 くらげ工匠</a>
             </small>
