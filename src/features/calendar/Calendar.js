@@ -1,3 +1,5 @@
+import i18n from 'i18next';
+
 // Array of API discovery doc URLs for APIs used by the quickstart
 const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'];
 
@@ -194,17 +196,17 @@ export function createEvent(duration, eventName = 'Pomodoro', eventDetail = '', 
 
       request.execute((event) => {
         console.log(event);
-        const newText = `Pomodoro Done: ${event.summary} <a href=\"${event.htmlLink}\" target=\"_blank\">[View in Calendar]</a>`;
+        const newText = `${event.summary} <a href=\"${event.htmlLink}\" target=\"_blank\">[${i18n.t('view_calendar')}]</a>`;
         appendOl(newText);
       });
     } else {
       console.log('Not signed in');
-      const newText = 'Pomodoro Done: Not Signed In';
+      const newText = `${eventName} [${i18n.t('log_not_signed_in')}]`;
       appendOl(newText);
     }
   } catch (error) {
     console.error(error);
-    const newText = 'Pomodoro Done: Failed to create a log on Calendar.';
+    const newText = `${eventName} [${i18n.t('log_failed')}]`;
     appendOl(newText);
   }
 }
