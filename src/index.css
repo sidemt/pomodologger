@@ -19,6 +19,7 @@ a:hover {
   align-items: center;
   color: var(--main-black);
   display: flex;
+  flex-direction: column;
   font-family: "Comfortaa", cursive;
   justify-content: center;
 }

@@ -2,7 +2,7 @@
   "name": "pomodologger",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://sidemt.github.io/pomodologger",
+  "homepage": "https://tools.charonworks.com/pomodologger",
   "license": "MIT",
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
